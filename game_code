@@ -80,17 +80,22 @@ class information_bar():
         screen.blit(Ifm_txt_lives, (self.pos['x'], self.pos['y']))
         screen.blit(Ifm_txt_stage_num, (self.pos['x']+350, self.pos['y']))
         screen.blit(Ifm_txt_menu, (635, 570))
-        if 635 <= pygame.mouse.get_pos()[0] <= 800:
-            if 570 <= pygame.mouse.get_pos()[1] <= 595:
-                self.mouse_on_txt_menu = 1
-                pygame.draw.rect(screen, (0, 0, 0), (635, 570, 137.5, 25), 1)
+        if Menu.show_YN == 0:
+            if 635 <= pygame.mouse.get_pos()[0] <= 800:
+                if 570 <= pygame.mouse.get_pos()[1] <= 595:
+                    self.mouse_on_txt_menu = 1
+                    pygame.draw.rect(screen, (0, 0, 0), (635, 570, 137.5, 25), 1)
 
 class menu():
     def __init__(self):
         self.show_YN = 0
         # self.page_contents = ["Main", "Rule"]
         self.page_num = 0
+        self.pagetext_rule = ["・ステージ変更モードで","　自分の道を切り開け","・ゴールにたどりつくと","　次のステージに進めるぞ"]
         self.mouse_on_cross = 0
+        self.mouse_on_txt_X = 0
+        self.mouse_on_maintxt_HowToPlay = 0
+        self.mouse_on_back = 0
     def show(self,screen):
         pause_rect = pygame.Surface((800, 600), pygame.SRCALPHA)
         pygame.draw.rect(pause_rect, (255,255,255,150), pause_rect.get_rect())
@@ -99,13 +104,34 @@ class menu():
 
         pygame.draw.rect(screen, (255,255,255), (100, 100, 600, 400), border_radius=15)
         pygame.draw.rect(screen, (0,0,0), (100, 100, 600, 400), 2, border_radius=15)
+
+        if self.page_num != 0:
+            screen.blit(menu_pagetxt_back, (110, 112.5))
+            if 110 <= pygame.mouse.get_pos()[0] <= 272.5:
+                if 112.5 <= pygame.mouse.get_pos()[1] <= 137.5:
+                    self.mouse_on_back = 1
+                    pygame.draw.rect(screen, (0, 0, 0), (110, 112.5, 162.5, 25), 1)
         if self.page_num == 0:
-            screen.blit(menu_txt_How_To_Play, (110, 150))
+            screen.blit(menu_maintxt_HowToPlay, (110, 150))
+            if 110 <= pygame.mouse.get_pos()[0] <= 617.5:
+                if 150 <= pygame.mouse.get_pos()[1] <= 185:
+                    self.mouse_on_maintxt_HowToPlay = 1
+                    pygame.draw.rect(screen, (0, 0, 0), (110, 150, 507.5, 35), 1)
+        if self.page_num == 1:
+            for i in range(0,len(self.pagetext_rule)):
+                screen.blit(menu_pagetxt_HowToPlay[i], (110, 150+i*35))
+
+        screen.blit(menu_txt_txtX, (370, 112.5))
         screen.blit(menu_txt_X_1, (662.5, 112.5))
+        pygame.draw.circle(screen, (0,0,0), (675, 125), 15, 1)
         if (abs(pygame.mouse.get_pos()[0]-675)**2 + abs(pygame.mouse.get_pos()[1]-125)**2)**0.5 <= 15:
             self.mouse_on_cross = 1
             pygame.draw.circle(screen, (100,100,100), (675, 125), 15)
             screen.blit(menu_txt_X_2, (662.5, 112.5))
+        if 370 <= pygame.mouse.get_pos()[0] <= 657.5:
+            if 112.5 <= pygame.mouse.get_pos()[1] <= 137.5:
+                self.mouse_on_txt_X = 1
+                pygame.draw.rect(screen, (0, 0, 0), (370, 112.5, 287.5, 25), 1)
 
 def main():
     pygame.init()
@@ -118,24 +144,38 @@ def main():
     Ifm = information_bar()
     global Menu
     Menu = menu()
+
     global font1
     font1 = pygame.font.SysFont("uddigikyokashonr", 40)
     global font2
     font2 = pygame.font.SysFont("uddigikyokashonr", 25)
     global font3
     font3 = pygame.font.SysFont("uddigikyokashonr", 100)
+    global font4
+    font4 = pygame.font.SysFont("uddigikyokashonr", 35)
+
     global Ifm_txt_lives
     Ifm_txt_lives = font1.render("残りライフ："+str(Ifm.lives), True, (0, 0, 0))
     global Ifm_txt_stage_num
     Ifm_txt_stage_num = font1.render("ステージ："+str(St.st_num), True, (0, 0, 0))
     global Ifm_txt_menu
     Ifm_txt_menu = font2.render("MENU：mキー", True, (0, 0, 0))
+
     global menu_txt_X_1
     menu_txt_X_1 = font2.render("×", True, (0, 0, 0))
     global menu_txt_X_2
     menu_txt_X_2 = font2.render("×", True, (255, 255, 255))
-    global menu_txt_How_To_Play
-    menu_txt_How_To_Play = font1.render("ゲームの遊び方・ルール：1キー", True, (0, 0, 0))
+    global menu_txt_txtX
+    menu_txt_txtX = font2.render("メニューを閉じる：xキー", True, (0, 0, 0))
+    global menu_pagetxt_back
+    menu_pagetxt_back = font2.render("<<戻る：bキー", True, (0, 0, 0))
+    global menu_maintxt_HowToPlay
+    menu_maintxt_HowToPlay = font4.render("ゲームの遊び方・ルール：1キー", True, (0, 0, 0))
+    global menu_pagetxt_HowToPlay
+    menu_pagetxt_HowToPlay = []
+    for i in Menu.pagetext_rule:
+        menu_pagetxt_HowToPlay.append(font4.render(i, True, (0, 0, 0)))
+
     global St_start_txt_1
     St_start_txt_1 = font3.render("ステージ："+str(St.st_num), True, (0, 0, 0))
     clock = pygame.time.Clock()
@@ -163,6 +203,12 @@ def main():
 
         if Menu.mouse_on_cross == 1:
             Menu.mouse_on_cross = 0
+        if Menu.mouse_on_txt_X == 1:
+            Menu.mouse_on_txt_X = 0
+        if Menu.mouse_on_maintxt_HowToPlay == 1:
+            Menu.mouse_on_maintxt_HowToPlay = 0
+        if Menu.mouse_on_back == 1:
+            Menu.mouse_on_back = 0
         if Menu.show_YN == 1:
             Menu.show(screen)
 
@@ -173,9 +219,16 @@ def main():
             if event.type == KEYDOWN:
                 if St.next == 0:
                     if event.key == K_m:
-                        Menu.show_YN = 1
+                        if Menu.show_YN == 0:
+                            Menu.page_num = 0
+                            Menu.show_YN = 1
                     if event.key == K_x:
-                        Menu.show_YN = 0
+                        if Menu.show_YN == 1:
+                            Menu.show_YN = 0
+                    if event.key == K_b:
+                        Menu.page_num = 0
+                    if event.key == K_1:
+                        Menu.page_num = 1
 
                     if Menu.show_YN == 0:
                         if event.key == K_0:
@@ -209,8 +262,15 @@ def main():
                 if Ifm.mouse_on_txt_menu == 1:
                     Menu.page_num = 0
                     Menu.show_YN = 1
+                    # Ifm.mouse_on_txt_menu = 0 #show()の前に書くことを忘れずに
                 if Menu.mouse_on_cross == 1:
                     Menu.show_YN = 0
+                if Menu.mouse_on_txt_X == 1:
+                    Menu.show_YN = 0
+                if Menu.mouse_on_maintxt_HowToPlay == 1:
+                    Menu.page_num = 1
+                if Menu.mouse_on_back == 1:
+                    Menu.page_num = 0
             if event.type == START_TEXT_RESET:
                 St.start_text = 0
 
@@ -283,7 +343,6 @@ def main():
         if St.next == 1:
             P1.no_control = 1
             next_stage(St.st_num + 1)
-        print(P1.no_control)
 
         pygame.display.update()
         clock.tick(90)
