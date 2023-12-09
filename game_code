@@ -1,0 +1,290 @@
+from tkinter import Menu, font
+import pygame
+from pygame.locals import *
+import sys
+
+class Player():
+    def __init__(self):
+        self.pos = {'x':0, 'y':360}
+        self.size = {'x':40, 'y':40}
+        self.vel = {'x':0, 'y':0}
+        self.zone = 0
+        self.no_control = 0
+    def show(self, screen):
+        if self.zone == 0:
+            pygame.draw.rect(screen, (255,255,0), (self.pos['x'],self.pos['y'],self.size['x'],self.size['y']),0)
+        else:
+            zone_1_rect = pygame.Surface((self.size['x'], self.size['y']), pygame.SRCALPHA)
+            pygame.draw.rect(zone_1_rect, (255,255,0,150), zone_1_rect.get_rect())
+            zone_1_rect.set_alpha(150)# 四角形の透明度を設定
+            screen.blit(zone_1_rect, (self.pos['x'], self.pos['y']))# 四角形を画面に描画
+        pygame.draw.rect(screen, (0,0,0), (self.pos['x'],self.pos['y'],self.size['x'],self.size['y']),1)
+    def move(self,vel_x,vel_y):
+        self.vel['x'] = vel_x
+        self.pos['x'] += self.vel['x']
+        if 0 >= self.pos['x']:
+            self.vel['x'] = 0
+            self.pos['x'] = 0
+        if 800-self.size['x'] <= self.pos['x']:
+            self.vel['x'] = 0
+            self.pos['x'] = 800-self.size['x']
+
+        if self.zone == 0:
+            self.vel['y'] += vel_y + 0.08
+            self.pos['y'] += self.vel['y']
+            if P1.pos['y'] < 120+St.ground_list[int(P1.pos['x']//40)]*40:   #左上
+                P1.vel['y'] = 0
+                P1.pos['y'] = 120+St.ground_list[int(P1.pos['x']//40)]*40
+            if P1.pos['y'] < 120+St.ground_list[int((P1.pos['x']+P1.size['x']-1)//40)]*40:  #右上
+                P1.vel['y'] = 0
+                P1.pos['y'] = 120+St.ground_list[int((P1.pos['x']+P1.size['x']-1)//40)]*40
+            if P1.pos['y']+P1.size['y'] > 400+St.ground_list[int(P1.pos['x']//40)]*40:    #左下
+                P1.vel['y'] = 0
+                P1.pos['y'] = 400+St.ground_list[int(P1.pos['x']//40)]*40-40
+            if P1.pos['y']+P1.size['y'] > 400+St.ground_list[int((P1.pos['x']+P1.size['x']-1)//40)]*40:   #右下
+                P1.vel['y'] = 0
+                P1.pos['y'] = 400+St.ground_list[int((P1.pos['x']+P1.size['x']-1)//40)]*40-40
+
+class stage():
+    def __init__(self):
+        self.ground_list = []
+        for i in range(20):
+            self.ground_list.append(0)
+        self.goal_pos = {'x':720, 'y':40}
+        self.goal_size = {'x':40, 'y':80}
+        self.st_num = 1
+        self.next = 0
+        self.start_text = 1
+    def show(self,screen):
+        pygame.draw.ellipse(screen, (255,255,0), (self.goal_pos['x'], self.goal_pos['y'], self.goal_size['x'], self.goal_size['y']),0)
+        for i in range(20):
+            pygame.draw.rect(screen, (90,90,90), (i*40, 0, 40, 120+self.ground_list[i]*40),0)
+            pygame.draw.rect(screen, (90,90,90), (i*40, 400+self.ground_list[i]*40, 40, 520-(400+self.ground_list[i]*40)),0)
+        for i in range(20):
+            pygame.draw.line(screen, (0,0,0), (i*40,120+self.ground_list[i]*40), (i*40+40,120+self.ground_list[i]*40),1)
+            pygame.draw.line(screen, (0,0,0), (i*40,400+self.ground_list[i]*40), (i*40+40,400+self.ground_list[i]*40),1)
+        for i in range(19):
+            pygame.draw.line(screen, (0,0,0), (i*40+40,120+self.ground_list[i]*40), (i*40+40,120+self.ground_list[i+1]*40),1)
+            pygame.draw.line(screen, (0,0,0), (i*40+40,400+self.ground_list[i]*40), (i*40+40,400+self.ground_list[i+1]*40),1)
+        pygame.draw.ellipse(screen, (255,255,0), (self.goal_pos['x'], self.goal_pos['y'], self.goal_size['x'], self.goal_size['y']),1)
+        pygame.draw.rect(screen, (255,255,255), (0, 520, 800, 80))
+        pygame.draw.line(screen, (0,0,0), (0,520), (800, 520))
+
+class information_bar():
+    def __init__(self):
+        self.st_change_num = 0
+        self.lives = 5
+        self.pos = {'x':0,'y':520}
+        self.mouse_on_txt_menu = 0
+    def show(self,screen):
+        screen.blit(Ifm_txt_lives, (self.pos['x'], self.pos['y']))
+        screen.blit(Ifm_txt_stage_num, (self.pos['x']+350, self.pos['y']))
+        screen.blit(Ifm_txt_menu, (635, 570))
+        if 635 <= pygame.mouse.get_pos()[0] <= 800:
+            if 570 <= pygame.mouse.get_pos()[1] <= 595:
+                self.mouse_on_txt_menu = 1
+                pygame.draw.rect(screen, (0, 0, 0), (635, 570, 137.5, 25), 1)
+
+class menu():
+    def __init__(self):
+        self.show_YN = 0
+        # self.page_contents = ["Main", "Rule"]
+        self.page_num = 0
+        self.mouse_on_cross = 0
+    def show(self,screen):
+        pause_rect = pygame.Surface((800, 600), pygame.SRCALPHA)
+        pygame.draw.rect(pause_rect, (255,255,255,150), pause_rect.get_rect())
+        pause_rect.set_alpha(150)# 四角形の透明度を設定
+        screen.blit(pause_rect, (0, 0))# 四角形を画面に描画
+
+        pygame.draw.rect(screen, (255,255,255), (100, 100, 600, 400), border_radius=15)
+        pygame.draw.rect(screen, (0,0,0), (100, 100, 600, 400), 2, border_radius=15)
+        if self.page_num == 0:
+            screen.blit(menu_txt_How_To_Play, (110, 150))
+        screen.blit(menu_txt_X_1, (662.5, 112.5))
+        if (abs(pygame.mouse.get_pos()[0]-675)**2 + abs(pygame.mouse.get_pos()[1]-125)**2)**0.5 <= 15:
+            self.mouse_on_cross = 1
+            pygame.draw.circle(screen, (100,100,100), (675, 125), 15)
+            screen.blit(menu_txt_X_2, (662.5, 112.5))
+
+def main():
+    pygame.init()
+    screen = pygame.display.set_mode((800, 600))
+    global P1
+    P1 = Player()
+    global St
+    St = stage()
+    global Ifm
+    Ifm = information_bar()
+    global Menu
+    Menu = menu()
+    global font1
+    font1 = pygame.font.SysFont("uddigikyokashonr", 40)
+    global font2
+    font2 = pygame.font.SysFont("uddigikyokashonr", 25)
+    global font3
+    font3 = pygame.font.SysFont("uddigikyokashonr", 100)
+    global Ifm_txt_lives
+    Ifm_txt_lives = font1.render("残りライフ："+str(Ifm.lives), True, (0, 0, 0))
+    global Ifm_txt_stage_num
+    Ifm_txt_stage_num = font1.render("ステージ："+str(St.st_num), True, (0, 0, 0))
+    global Ifm_txt_menu
+    Ifm_txt_menu = font2.render("MENU：mキー", True, (0, 0, 0))
+    global menu_txt_X_1
+    menu_txt_X_1 = font2.render("×", True, (0, 0, 0))
+    global menu_txt_X_2
+    menu_txt_X_2 = font2.render("×", True, (255, 255, 255))
+    global menu_txt_How_To_Play
+    menu_txt_How_To_Play = font1.render("ゲームの遊び方・ルール：1キー", True, (0, 0, 0))
+    global St_start_txt_1
+    St_start_txt_1 = font3.render("ステージ："+str(St.st_num), True, (0, 0, 0))
+    clock = pygame.time.Clock()
+    START_TEXT_RESET = pygame.USEREVENT +1
+    
+    pygame.time.set_timer(START_TEXT_RESET, 1500)
+    while True:
+        screen.fill((255,255,255))
+        St.show(screen)
+
+        P1.show(screen)
+        if Menu.show_YN == 0:
+            P1.move(0,0)
+        if P1.no_control == 1:
+            if P1.pos['y'] >= 400+St.ground_list[int(P1.pos['x']//40)]*40-40 or P1.pos['y'] >= 400+St.ground_list[int((P1.pos['x']+P1.size['x']-1)//40)]*40-40:
+                P1.no_control = 0
+
+        if Ifm.mouse_on_txt_menu == 1:
+            Ifm.mouse_on_txt_menu = 0
+        Ifm.show(screen)
+
+        if St.start_text != 0:
+            St_start_txt_1 = font3.render("ステージ："+str(St.st_num), True, (0, 0, 0))
+            screen.blit(St_start_txt_1, (400-100*(5+len(str(St.st_num))/2)/2, 150))
+
+        if Menu.mouse_on_cross == 1:
+            Menu.mouse_on_cross = 0
+        if Menu.show_YN == 1:
+            Menu.show(screen)
+
+        for event in pygame.event.get(): 
+            if event.type == QUIT:
+                pygame.quit() 
+                sys.exit()
+            if event.type == KEYDOWN:
+                if St.next == 0:
+                    if event.key == K_m:
+                        Menu.show_YN = 1
+                    if event.key == K_x:
+                        Menu.show_YN = 0
+
+                    if Menu.show_YN == 0:
+                        if event.key == K_0:
+                            if P1.zone == 0:
+                                P1.zone = 1
+                                P1.pos['x'] = 0
+                                P1.pos['y'] = 240
+                        if P1.zone == 1:
+                            if event.key == K_9:
+                                P1.zone = 0
+                                P1.pos['x'] = 0
+                                if St.ground_list[0] >= 0:
+                                    P1.pos['y'] = 340
+                                else:
+                                    P1.pos['y'] = 340 + St.ground_list[0]*40
+                                P1.no_control = 1
+                            if event.key == K_RIGHT:
+                                P1.move(40,0)
+                            if event.key == K_LEFT:
+                                P1.move(-40,0)
+                            
+                            if event.key == K_UP:
+                                if P1.pos['x'] != 0 or P1.pos['x'] == 0 and St.ground_list[0] > 0:
+                                    Ifm.st_change_num += 1
+                                    St.ground_list[int(P1.pos['x']/40)] -= 1
+                            if event.key == K_DOWN:
+                                if P1.pos['x'] != 0 or P1.pos['x'] == 0 and St.ground_list[0] < 9:
+                                    Ifm.st_change_num += 1
+                                    St.ground_list[int(P1.pos['x']/40)] += 1
+            if event.type == MOUSEBUTTONDOWN:
+                if Ifm.mouse_on_txt_menu == 1:
+                    Menu.page_num = 0
+                    Menu.show_YN = 1
+                if Menu.mouse_on_cross == 1:
+                    Menu.show_YN = 0
+            if event.type == START_TEXT_RESET:
+                St.start_text = 0
+
+        key = pygame.key.get_pressed()
+        if Menu.show_YN == 0:
+            if P1.zone == 0:
+                if P1.no_control == 0:
+                    if key[pygame.K_RIGHT] == 1:
+                        if key[pygame.K_LEFT] == 0:
+                            if P1.pos['x'] <= 720:
+                                if P1.pos['y'] >= 120+St.ground_list[int((P1.pos['x']+40)//40)]*40:
+                                    if P1.pos['y']+40-1 <= 400+St.ground_list[int((P1.pos['x']+40)//40)]*40:
+                                        P1.move(8,0)
+                            else:
+                                P1.move(8,0)
+                    if key[pygame.K_LEFT] == 1:
+                        if key[pygame.K_RIGHT] == 0:
+                            if P1.pos['x'] >= 40:
+                                if P1.pos['y'] >= 120+St.ground_list[int((P1.pos['x']-8)//40)]*40:
+                                    if P1.pos['y']+40-1 <= 400+St.ground_list[int((P1.pos['x']-8)//40)]*40:
+                                        P1.move(-8,0)
+                            else:
+                                P1.move(-8,0)
+                    if P1.pos['y'] >= 400+St.ground_list[int(P1.pos['x']//40)]*40-40 or P1.pos['y'] >= 400+St.ground_list[int((P1.pos['x']+P1.size['x']-1)//40)]*40-40:
+                        if key[pygame.K_UP] == 1:
+                            P1.move(0,-3.5)
+        
+
+        def next_stage(NextStageNum):
+            P1.vel['x'] = 0
+            A = (St.goal_pos['x']+St.goal_size['x']/2)-(P1.pos['x']+P1.size['x']/2)
+            if A != 0:
+                P1.pos['x'] += A/abs(A)
+            P1.vel['y'] = 0
+            B = (St.goal_pos['y']+St.goal_size['y']/2)-(P1.pos['y']+P1.size['y']/2)
+            if B != 0:
+                P1.pos['y'] += B/abs(B)
+
+            if P1.size['x'] > 0:
+                P1.size['x'] -= 0.75
+            if P1.size['y'] > 0:
+                P1.size['y'] -= 0.75
+
+            if P1.size['x'] <= 0 and P1.size['y'] <= 0:
+                P1.pos['x'] = 0
+                P1.pos['y'] = 340
+                St.next = 0
+                P1.size['x'] = 40
+                P1.size['y'] = 40
+                St.st_num = NextStageNum
+                St.start_text = St.st_num
+                global Ifm_txt_stage_num
+                Ifm_txt_stage_num = font1.render("ステージ："+str(St.st_num), True, (0, 0, 0))
+                pygame.time.set_timer(START_TEXT_RESET, 2000)
+
+        if P1.pos['x'] <= St.goal_pos['x']+St.goal_size['x']/2 <= P1.pos['x']+P1.size['x']:
+            if St.goal_pos['y'] < P1.pos['y'] < St.goal_pos['y']+St.goal_size['y']:
+                St.next = 1
+        elif P1.pos['y'] <= St.goal_pos['y']+St.goal_size['y']/2 <= P1.pos['y']+P1.size['y']:
+            if St.goal_pos['x'] < P1.pos['x'] < St.goal_pos['x']+St.goal_size['x']:
+                St.next = 1
+        elif (abs((St.goal_pos['x']+St.goal_size['x']/2)-(P1.pos['x']))**2+abs((St.goal_pos['y']+5.5)-(P1.pos['y']))**2)**0.5 + (abs((St.goal_pos['x']+St.goal_size['x']/2)-(P1.pos['x']))**2+abs((St.goal_pos['y']+74.5)-(P1.pos['y']))**2)**0.5 < 79:
+            St.next = 1
+        elif (abs((St.goal_pos['x']+St.goal_size['x']/2)-(P1.pos['x']+P1.size['x']))**2+abs((St.goal_pos['y']+5.5)-(P1.pos['y']))**2)**0.5 + (abs((St.goal_pos['x']+St.goal_size['x']/2)-(P1.pos['x']+P1.size['x']))**2+abs((St.goal_pos['y']+74.5)-(P1.pos['y']))**2)**0.5 < 79:
+            St.next = 1
+        elif (abs((St.goal_pos['x']+St.goal_size['x']/2)-(P1.pos['x']))**2+abs((St.goal_pos['y']+5.5)-(P1.pos['y']+P1.size['y']))**2)**0.5 + (abs((St.goal_pos['x']+St.goal_size['x']/2)-(P1.pos['x']))**2+abs((St.goal_pos['y']+74.5)-(P1.pos['y']+P1.size['y']))**2)**0.5 < 79:
+            St.next = 1
+        elif (abs((St.goal_pos['x']+St.goal_size['x']/2)-(P1.pos['x']+P1.size['x']))**2+abs((St.goal_pos['y']+5.5)-(P1.pos['y']+P1.size['y']))**2)**0.5 + (abs((St.goal_pos['x']+St.goal_size['x']/2)-(P1.pos['x']+P1.size['x']))**2+abs((St.goal_pos['y']+74.5)-(P1.pos['y']+P1.size['y']))**2)**0.5 < 79:
+            St.next = 1
+        if St.next == 1:
+            P1.no_control = 1
+            next_stage(St.st_num + 1)
+        print(P1.no_control)
+
+        pygame.display.update()
+        clock.tick(90)
+main()
