@@ -91,10 +91,17 @@ class menu():
         self.show_YN = 0
         # self.page_contents = ["Main", "Rule"]
         self.page_num = 0
-        self.pagetext_rule = ["・ステージ変更モードで","　自分の道を切り開け","・ゴールにたどりつくと","　次のステージに進めるぞ"]
+        self.pagetxt_rule = ["・ステージ変更モードで","　自分の道を切り開け","・ゴールにたどりつくと","　次のステージに進めるぞ"]
+        self.pagetxt_serect_stage = ["1   2   3   4   5","6   7   8   9","10  11  12  13  14","15  16  17  18","19  20  21  22  23"]
+        self.pagetxt_serectSt_posX1 = [[145,175],[265,295],[385,415],[505,535],[625,655]]
+        self.pagetxt_serectSt_posX2 = [[205,235],[325,355],[445,475],[565,595]]
+        self.pagetxt_serectSt_posX3 = [[130,190],[250,310],[370,430],[490,550],[610,670]]
+        self.pagetxt_serectSt_posX4 = [[190,250],[310,370],[430,490],[550,610]]
         self.mouse_on_cross = 0
         self.mouse_on_txt_X = 0
         self.mouse_on_maintxt_HowToPlay = 0
+        self.mouse_on_maintxt_SerectSt = 0
+        self.mouse_on_pagetxt_SerectSt = 0
         self.mouse_on_back = 0
     def show(self,screen):
         pause_rect = pygame.Surface((800, 600), pygame.SRCALPHA)
@@ -105,21 +112,49 @@ class menu():
         pygame.draw.rect(screen, (255,255,255), (100, 100, 600, 400), border_radius=15)
         pygame.draw.rect(screen, (0,0,0), (100, 100, 600, 400), 2, border_radius=15)
 
-        if self.page_num != 0:
-            screen.blit(menu_pagetxt_back, (110, 112.5))
-            if 110 <= pygame.mouse.get_pos()[0] <= 272.5:
-                if 112.5 <= pygame.mouse.get_pos()[1] <= 137.5:
-                    self.mouse_on_back = 1
-                    pygame.draw.rect(screen, (0, 0, 0), (110, 112.5, 162.5, 25), 1)
         if self.page_num == 0:
             screen.blit(menu_maintxt_HowToPlay, (110, 150))
             if 110 <= pygame.mouse.get_pos()[0] <= 617.5:
                 if 150 <= pygame.mouse.get_pos()[1] <= 185:
                     self.mouse_on_maintxt_HowToPlay = 1
                     pygame.draw.rect(screen, (0, 0, 0), (110, 150, 507.5, 35), 1)
+            screen.blit(menu_maintxt_SerectSt, (110, 185))
+            if 110 <= pygame.mouse.get_pos()[0] <= 477.5:
+                if 185 <= pygame.mouse.get_pos()[1] <= 220:
+                    self.mouse_on_maintxt_SerectSt = 1
+                    pygame.draw.rect(screen, (0, 0, 0), (110, 185, 367.5, 35), 1)
+        if self.page_num != 0:
+            screen.blit(menu_pagetxt_back, (110, 112.5))
+            if 110 <= pygame.mouse.get_pos()[0] <= 272.5:
+                if 112.5 <= pygame.mouse.get_pos()[1] <= 137.5:
+                    self.mouse_on_back = 1
+                    pygame.draw.rect(screen, (0, 0, 0), (110, 112.5, 162.5, 25), 1)
         if self.page_num == 1:
-            for i in range(0,len(self.pagetext_rule)):
+            for i in range(0,len(self.pagetxt_rule)):
                 screen.blit(menu_pagetxt_HowToPlay[i], (110, 150+i*35))
+        if self.page_num == 2:
+            for i in range(0,len(self.pagetxt_serect_stage)):
+                screen.blit(menu_pagetxt_SerectSt[i], (400-len(self.pagetxt_serect_stage[i])*15, 150+i*60))
+            if 150 <= pygame.mouse.get_pos()[1] <= 310:
+                for i in range(5):
+                    if self.pagetxt_serectSt_posX1[i][0] <= pygame.mouse.get_pos()[0] <= self.pagetxt_serectSt_posX1[i][1]:
+                        self.mouse_on_pagetxt_SerectSt = i+1
+            if 310 <= pygame.mouse.get_pos()[1] <= 370:
+                for i in range(4):
+                    if self.pagetxt_serectSt_posX2[i][0] <= pygame.mouse.get_pos()[0] <= self.pagetxt_serectSt_posX2[i][1]:
+                        self.mouse_on_pagetxt_SerectSt = i+6
+            if 370 <= pygame.mouse.get_pos()[1] <= 430:
+                for i in range(5):
+                    if self.pagetxt_serectSt_posX3[i][0] <= pygame.mouse.get_pos()[0] <= self.pagetxt_serectSt_posX3[i][1]:
+                        self.mouse_on_pagetxt_SerectSt = i+10
+            if 430 <= pygame.mouse.get_pos()[1] <= 490:
+                for i in range(4):
+                    if self.pagetxt_serectSt_posX4[i][0] <= pygame.mouse.get_pos()[0] <= self.pagetxt_serectSt_posX4[i][1]:
+                        self.mouse_on_pagetxt_SerectSt = i+15
+            if 490 <= pygame.mouse.get_pos()[1] <= 550:
+                for i in range(5):
+                    if self.pagetxt_serectSt_posX3[i][0] <= pygame.mouse.get_pos()[0] <= self.pagetxt_serectSt_posX3[i][1]:
+                        self.mouse_on_pagetxt_SerectSt = i+19
 
         screen.blit(menu_txt_txtX, (370, 112.5))
         screen.blit(menu_txt_X_1, (662.5, 112.5))
@@ -153,6 +188,8 @@ def main():
     font3 = pygame.font.SysFont("uddigikyokashonr", 100)
     global font4
     font4 = pygame.font.SysFont("uddigikyokashonr", 35)
+    global font5
+    font5 = pygame.font.SysFont("uddigikyokashonr", 60)
 
     global Ifm_txt_lives
     Ifm_txt_lives = font1.render("残りライフ："+str(Ifm.lives), True, (0, 0, 0))
@@ -167,14 +204,22 @@ def main():
     menu_txt_X_2 = font2.render("×", True, (255, 255, 255))
     global menu_txt_txtX
     menu_txt_txtX = font2.render("メニューを閉じる：xキー", True, (0, 0, 0))
-    global menu_pagetxt_back
-    menu_pagetxt_back = font2.render("<<戻る：bキー", True, (0, 0, 0))
+
     global menu_maintxt_HowToPlay
     menu_maintxt_HowToPlay = font4.render("ゲームの遊び方・ルール：1キー", True, (0, 0, 0))
+    global menu_maintxt_SerectSt
+    menu_maintxt_SerectSt = font4.render("ステージの選択：2キー", True, (0, 0, 0))
+
     global menu_pagetxt_HowToPlay
     menu_pagetxt_HowToPlay = []
-    for i in Menu.pagetext_rule:
+    for i in Menu.pagetxt_rule:
         menu_pagetxt_HowToPlay.append(font4.render(i, True, (0, 0, 0)))
+    global menu_pagetxt_SerectSt
+    menu_pagetxt_SerectSt = []
+    for i in Menu.pagetxt_serect_stage:
+        menu_pagetxt_SerectSt.append(font5.render(i, True, (0, 0, 0)))
+    global menu_pagetxt_back
+    menu_pagetxt_back = font2.render("<<戻る：bキー", True, (0, 0, 0))
 
     global St_start_txt_1
     St_start_txt_1 = font3.render("ステージ："+str(St.st_num), True, (0, 0, 0))
@@ -207,6 +252,10 @@ def main():
             Menu.mouse_on_txt_X = 0
         if Menu.mouse_on_maintxt_HowToPlay == 1:
             Menu.mouse_on_maintxt_HowToPlay = 0
+        if Menu.mouse_on_maintxt_SerectSt == 1:
+            Menu.mouse_on_maintxt_SerectSt = 0
+        if Menu.mouse_on_pagetxt_SerectSt != 0:
+            Menu.mouse_on_pagetxt_SerectSt = 0
         if Menu.mouse_on_back == 1:
             Menu.mouse_on_back = 0
         if Menu.show_YN == 1:
@@ -225,10 +274,12 @@ def main():
                     if event.key == K_x:
                         if Menu.show_YN == 1:
                             Menu.show_YN = 0
-                    if event.key == K_b:
-                        Menu.page_num = 0
                     if event.key == K_1:
                         Menu.page_num = 1
+                    if event.key == K_2:
+                        Menu.page_num = 2
+                    if event.key == K_b:
+                        Menu.page_num = 0
 
                     if Menu.show_YN == 0:
                         if event.key == K_0:
@@ -269,6 +320,13 @@ def main():
                     Menu.show_YN = 0
                 if Menu.mouse_on_maintxt_HowToPlay == 1:
                     Menu.page_num = 1
+                if Menu.mouse_on_maintxt_SerectSt == 1:
+                    Menu.page_num = 2
+                if Menu.mouse_on_pagetxt_SerectSt != 0:
+                    St.st_num = Menu.mouse_on_pagetxt_SerectSt
+                    Ifm_txt_stage_num = font1.render("ステージ："+str(St.st_num), True, (0, 0, 0))
+                    St_start_txt_1 = font3.render("ステージ："+str(St.st_num), True, (0, 0, 0))
+                    Menu.show_YN = 0
                 if Menu.mouse_on_back == 1:
                     Menu.page_num = 0
             if event.type == START_TEXT_RESET:
