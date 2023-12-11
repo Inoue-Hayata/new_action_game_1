@@ -103,6 +103,15 @@ class menu():
         self.mouse_on_maintxt_SerectSt = 0
         self.mouse_on_pagetxt_SerectSt = 0
         self.mouse_on_back = 0
+        self.SSP_pos_list = [[175,150],[295,150],[415,150],[535,150],[655,150],
+                             [235,210],[355,210],[475,210],[595,210],
+                             [190,270],[310,270],[430,270],[550,270],[670,270],
+                             [250,330],[370,330],[490,330],[610,330],
+                             [190,390],[310,390],[430,390],[550,390],[670,390]]
+        self.SSP_pos_index = 0
+        self.SSP_pos_GapY = 0
+        self.SSP_size = {'x':20, 'y':20}
+        self.SSP_velY = 0
     def show(self,screen):
         pause_rect = pygame.Surface((800, 600), pygame.SRCALPHA)
         pygame.draw.rect(pause_rect, (255,255,255,150), pause_rect.get_rect())
@@ -132,29 +141,42 @@ class menu():
         if self.page_num == 1:
             for i in range(0,len(self.pagetxt_rule)):
                 screen.blit(menu_pagetxt_HowToPlay[i], (110, 150+i*35))
-        if self.page_num == 2:
+        if self.page_num == 2:  #ステージ選択画面
             for i in range(0,len(self.pagetxt_serect_stage)):
-                screen.blit(menu_pagetxt_SerectSt[i], (400-len(self.pagetxt_serect_stage[i])*15, 150+i*60))
-            if 150 <= pygame.mouse.get_pos()[1] <= 310:
+                screen.blit(menu_pagetxt_SerectSt[i], (400-len(self.pagetxt_serect_stage[i])*15, 150+i*60)) #ステージ数の描画(1~23)
+            self.SSP_velY += 0.08
+            if self.SSP_pos_GapY >= 40:
+                self.SSP_pos_GapY == 40
+                self.SSP_velY = -2.5
+            self.SSP_pos_GapY += self.SSP_velY
+            pygame.draw.rect(screen, (255,255,0), (self.SSP_pos_list[self.SSP_pos_index][0], self.SSP_pos_list[self.SSP_pos_index][1]+self.SSP_pos_GapY, self.SSP_size['x'], self.SSP_size['y']))
+            pygame.draw.rect(screen, (0,0,0), (self.SSP_pos_list[self.SSP_pos_index][0], self.SSP_pos_list[self.SSP_pos_index][1]+self.SSP_pos_GapY, self.SSP_size['x'], self.SSP_size['y']), 1)
+            screen.blit(menu_pagetxt_SerectSt_explain, (145, 450))
+            if 150 <= pygame.mouse.get_pos()[1] <= 210:
                 for i in range(5):
                     if self.pagetxt_serectSt_posX1[i][0] <= pygame.mouse.get_pos()[0] <= self.pagetxt_serectSt_posX1[i][1]:
                         self.mouse_on_pagetxt_SerectSt = i+1
-            if 310 <= pygame.mouse.get_pos()[1] <= 370:
+                        pygame.draw.rect(screen, (0, 0, 0), (self.pagetxt_serectSt_posX1[i][0], 150, 30, 60), 1)
+            if 210 <= pygame.mouse.get_pos()[1] <= 270:
                 for i in range(4):
                     if self.pagetxt_serectSt_posX2[i][0] <= pygame.mouse.get_pos()[0] <= self.pagetxt_serectSt_posX2[i][1]:
                         self.mouse_on_pagetxt_SerectSt = i+6
-            if 370 <= pygame.mouse.get_pos()[1] <= 430:
+                        pygame.draw.rect(screen, (0, 0, 0), (self.pagetxt_serectSt_posX2[i][0], 210, 30, 60), 1)
+            if 270 <= pygame.mouse.get_pos()[1] <= 330:
                 for i in range(5):
                     if self.pagetxt_serectSt_posX3[i][0] <= pygame.mouse.get_pos()[0] <= self.pagetxt_serectSt_posX3[i][1]:
                         self.mouse_on_pagetxt_SerectSt = i+10
-            if 430 <= pygame.mouse.get_pos()[1] <= 490:
+                        pygame.draw.rect(screen, (0, 0, 0), (self.pagetxt_serectSt_posX3[i][0], 270, 60, 60), 1)
+            if 330 <= pygame.mouse.get_pos()[1] <= 390:
                 for i in range(4):
                     if self.pagetxt_serectSt_posX4[i][0] <= pygame.mouse.get_pos()[0] <= self.pagetxt_serectSt_posX4[i][1]:
                         self.mouse_on_pagetxt_SerectSt = i+15
-            if 490 <= pygame.mouse.get_pos()[1] <= 550:
+                        pygame.draw.rect(screen, (0, 0, 0), (self.pagetxt_serectSt_posX4[i][0], 330, 60, 60), 1)
+            if 390 <= pygame.mouse.get_pos()[1] <= 450:
                 for i in range(5):
                     if self.pagetxt_serectSt_posX3[i][0] <= pygame.mouse.get_pos()[0] <= self.pagetxt_serectSt_posX3[i][1]:
                         self.mouse_on_pagetxt_SerectSt = i+19
+                        pygame.draw.rect(screen, (0, 0, 0), (self.pagetxt_serectSt_posX3[i][0], 390, 60, 60), 1)
 
         screen.blit(menu_txt_txtX, (370, 112.5))
         screen.blit(menu_txt_X_1, (662.5, 112.5))
@@ -220,6 +242,8 @@ def main():
         menu_pagetxt_SerectSt.append(font5.render(i, True, (0, 0, 0)))
     global menu_pagetxt_back
     menu_pagetxt_back = font2.render("<<戻る：bキー", True, (0, 0, 0))
+    global menu_pagetxt_SerectSt_explain
+    menu_pagetxt_SerectSt_explain = font4.render("選択：←→キー　決定：enterキー", True, (0, 0, 0))
 
     global St_start_txt_1
     St_start_txt_1 = font3.render("ステージ："+str(St.st_num), True, (0, 0, 0))
@@ -267,21 +291,43 @@ def main():
                 sys.exit()
             if event.type == KEYDOWN:
                 if St.next == 0:
-                    if event.key == K_m:
-                        if Menu.show_YN == 0:
+                    if Menu.show_YN == 1:       #メニュー内
+                        if event.key == K_x:
+                            Menu.show_YN = 0
+                        if Menu.page_num == 0:
+                            if event.key == K_1:
+                                Menu.page_num = 1
+                            if event.key == K_2:
+                                Menu.page_num = 2
+                                Menu.SSP_pos_index = St.st_num-1
+                                Menu.SSP_pos_GapY = 0
+                                Menu.SSP_velY = 0
+                        if Menu.page_num == 2:
+                            if event.key == K_RIGHT:
+                                if Menu.SSP_pos_index <= 21:
+                                    Menu.SSP_pos_index += 1
+                                    Menu.SSP_pos_GapY = 0
+                                    Menu.SSP_velY = 0
+                            if event.key == K_LEFT:
+                                if Menu.SSP_pos_index >= 1:
+                                    Menu.SSP_pos_index -= 1
+                                    Menu.SSP_pos_GapY = 0
+                                    Menu.SSP_velY = 0
+                            if event.key == K_RETURN:
+                                if St.st_num != Menu.SSP_pos_index+1:
+                                    St.st_num = Menu.SSP_pos_index+1
+                                    St.start_text = St.st_num
+                                    Ifm_txt_stage_num = font1.render("ステージ："+str(St.st_num), True, (0, 0, 0))
+                                    St_start_txt_1 = font3.render("ステージ："+str(St.st_num), True, (0, 0, 0))
+                                    Menu.show_YN = 0
+                                    pygame.time.set_timer(START_TEXT_RESET, 2000)
+                        if event.key == K_b:
+                            Menu.page_num = 0
+
+                    if Menu.show_YN == 0:       #メニュー外
+                        if event.key == K_m:    #メニューを開く
                             Menu.page_num = 0
                             Menu.show_YN = 1
-                    if event.key == K_x:
-                        if Menu.show_YN == 1:
-                            Menu.show_YN = 0
-                    if event.key == K_1:
-                        Menu.page_num = 1
-                    if event.key == K_2:
-                        Menu.page_num = 2
-                    if event.key == K_b:
-                        Menu.page_num = 0
-
-                    if Menu.show_YN == 0:
                         if event.key == K_0:
                             if P1.zone == 0:
                                 P1.zone = 1
@@ -300,7 +346,7 @@ def main():
                                 P1.move(40,0)
                             if event.key == K_LEFT:
                                 P1.move(-40,0)
-                            
+
                             if event.key == K_UP:
                                 if P1.pos['x'] != 0 or P1.pos['x'] == 0 and St.ground_list[0] > 0:
                                     Ifm.st_change_num += 1
@@ -322,11 +368,17 @@ def main():
                     Menu.page_num = 1
                 if Menu.mouse_on_maintxt_SerectSt == 1:
                     Menu.page_num = 2
+                    Menu.SSP_pos_index = St.st_num-1
+                    Menu.SSP_pos_GapY = 0
+                    Menu.SSP_velY = 0
                 if Menu.mouse_on_pagetxt_SerectSt != 0:
-                    St.st_num = Menu.mouse_on_pagetxt_SerectSt
-                    Ifm_txt_stage_num = font1.render("ステージ："+str(St.st_num), True, (0, 0, 0))
-                    St_start_txt_1 = font3.render("ステージ："+str(St.st_num), True, (0, 0, 0))
-                    Menu.show_YN = 0
+                    if St.st_num != Menu.mouse_on_pagetxt_SerectSt:
+                        St.st_num = Menu.mouse_on_pagetxt_SerectSt
+                        St.start_text = St.st_num
+                        Ifm_txt_stage_num = font1.render("ステージ："+str(St.st_num), True, (0, 0, 0))
+                        St_start_txt_1 = font3.render("ステージ："+str(St.st_num), True, (0, 0, 0))
+                        Menu.show_YN = 0
+                        pygame.time.set_timer(START_TEXT_RESET, 2000)
                 if Menu.mouse_on_back == 1:
                     Menu.page_num = 0
             if event.type == START_TEXT_RESET:
@@ -355,9 +407,9 @@ def main():
                     if P1.pos['y'] >= 400+St.ground_list[int(P1.pos['x']//40)]*40-40 or P1.pos['y'] >= 400+St.ground_list[int((P1.pos['x']+P1.size['x']-1)//40)]*40-40:
                         if key[pygame.K_UP] == 1:
                             P1.move(0,-3.5)
-        
 
-        def next_stage(NextStageNum):
+
+        def GoalAndNextStage(NextStageNum):
             P1.vel['x'] = 0
             A = (St.goal_pos['x']+St.goal_size['x']/2)-(P1.pos['x']+P1.size['x']/2)
             if A != 0:
@@ -400,7 +452,7 @@ def main():
             St.next = 1
         if St.next == 1:
             P1.no_control = 1
-            next_stage(St.st_num + 1)
+            GoalAndNextStage(St.st_num + 1)
 
         pygame.display.update()
         clock.tick(90)
