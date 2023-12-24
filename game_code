@@ -10,7 +10,7 @@ class Player():
         self.jump_power = -4.0
         self.zone = 0
         self.no_control = 0
-        self.flash = 0
+        self.flash = 0  #0が通常、1が敵と当たった時、2が編集モード
         self.flash_count = 0
     def show(self, screen):
         if self.zone != 1:
@@ -31,7 +31,15 @@ class Player():
             self.flash_count += 1
             if self.flash_count >= (100 if Ifm.lives >= 2 else 300):
                 self.flash = 0
-                if Ifm.lives < 2:
+                P1.pos['x'] = 0
+                P1.pos['y'] = 340
+                P1.vel['x'] = 0
+                P1.vel['y'] = 0
+                if P1.zone != 2 or P1.zone == 2 and Ifm.lives == 1:
+                    Ifm.lives -= 1
+                    global Ifm_txt_lives
+                    Ifm_txt_lives = font1.render("残りライフ："+str(Ifm.lives), True, (0, 0, 0))
+                if Ifm.lives <= 0:
                     self.zone = 2
         if self.flash == 2:
             self.flash_count += 1
@@ -73,20 +81,25 @@ class stage():
         self.next = 0
         self.start_text = 1
         self.block_enemy = 0
-        self.b_enemy_pos = [[240,280],[360,260]]
-        self.b_enemy_size = [40,100]
+        self.b_enemy_pos = [[240,280],[440,220],[300,340]]
+        self.b_enemy_size = [40,100,30]
+        self.b_enemy_vel = [[0,0],[0,0],[3,3]]
         self.stage_element = [[40,40,-4.0,5,0,720,40,40,80], [40,40,-3.5,5,1,720,40,40,80], [40,40,-4.0,5,2,720,40,40,80], [40,40,-4.0,5,3,720,40,40,80], 
-                              [40,40,-4.0,5,0,720,40,40,80], [40,40,-4.0,5,0,720,40,40,80], [40,40,-4.0,5,0,720,40,40,80], [40,40,-4.0,5,0,720,40,40,80],
+                              [40,40,-4.0,5,4,720,40,40,80], [40,40,-4.0,5,5,720,40,40,80], [40,40,-4.0,5,6,720,40,40,80], [40,40,-4.0,5,7,720,40,40,80],
                               [40,40,-4.0,5,0,720,40,40,80], [40,40,-4.0,5,0,720,40,40,80], [40,40,-4.0,5,0,720,40,40,80], [40,40,-4.0,5,0,720,40,40,80],
                               [40,40,-4.0,5,0,720,40,40,80], [40,40,-4.0,5,0,720,40,40,80], [40,40,-4.0,5,0,720,40,40,80], [40,40,-4.0,5,0,720,40,40,80],
                               [40,40,-4.0,5,0,720,40,40,80], [40,40,-4.0,5,0,720,40,40,80], [40,40,-4.0,5,0,720,40,40,80], [40,40,-4.0,5,0,720,40,40,80],
                               [40,40,-4.0,5,0,720,40,40,80], [40,40,-4.0,5,0,720,40,40,80], [40,40,-4.0,5,0,720,40,40,80],]
     def St_main(self,screen):
         self.show(screen)
-        if self.block_enemy != 0:
-            for i in range(1,len(format(self.block_enemy, 'b'))+1):
-                if int(str(format(self.block_enemy, 'b'))[-i]) == 1:
-                    self.block_enemy_judgement(i)
+        if P1.flash == 0:
+            if Menu.show_YN == 0:
+                self.b_enemy_move()
+        if P1.zone == 0:
+                if self.block_enemy != 0:
+                    for i in range(1,len(format(self.block_enemy, 'b'))+1):
+                        if int(str(format(self.block_enemy, 'b'))[-i]) == 1:
+                            self.block_enemy_judgement(i)
     def show(self,screen):
         pygame.draw.ellipse(screen, (255,255,0), (self.goal_pos['x'], self.goal_pos['y'], self.goal_size['x'], self.goal_size['y']),0)
         for i in range(20):
@@ -111,7 +124,15 @@ class stage():
         if P1.zone == 2:
             pygame.draw.rect(screen, (255,255,255), (0, 0, 800, 520))
             screen.blit(St_GameOver_txt, (150, 210))
-                
+    def b_enemy_move(self):
+        for i in range(1, len(format(self.block_enemy, 'b'))+1):
+            if int(str(format(self.block_enemy, 'b'))[-i]) == 1:
+                self.b_enemy_pos[i-1][0] += self.b_enemy_vel[i-1][0]
+                if 0 > self.b_enemy_pos[i-1][0] or self.b_enemy_pos[i-1][0] > 800-self.b_enemy_size[i-1]:
+                    self.b_enemy_vel[i-1][0] *= -1
+                self.b_enemy_pos[i-1][1] += self.b_enemy_vel[i-1][1]
+                if 0 > self.b_enemy_pos[i-1][1] or self.b_enemy_pos[i-1][1] > 520-self.b_enemy_size[i-1]:
+                    self.b_enemy_vel[i-1][1] *= -1
     def block_enemy_judgement(self,b_enemy_num):
         if self.b_enemy_pos[b_enemy_num-1][0] <= P1.pos['x'] < self.b_enemy_pos[b_enemy_num-1][0]+self.b_enemy_size[b_enemy_num-1] or self.b_enemy_pos[b_enemy_num-1][0] < P1.pos['x']+P1.size['x'] <= self.b_enemy_pos[b_enemy_num-1][0]+self.b_enemy_size[b_enemy_num-1]:
             if self.b_enemy_pos[b_enemy_num-1][1] <= P1.pos['y'] < self.b_enemy_pos[b_enemy_num-1][1]+self.b_enemy_size[b_enemy_num-1] or self.b_enemy_pos[b_enemy_num-1][1] < P1.pos['y']+P1.size['y'] <= self.b_enemy_pos[b_enemy_num-1][1]+self.b_enemy_size[b_enemy_num-1]:
@@ -120,13 +141,6 @@ class stage():
                 if P1.no_control == 0:
                     P1.flash = 1
                 P1.no_control = 1
-                if P1.flash == 0:
-                    P1.pos['x'] = 0
-                    P1.pos['y'] = 340
-                    if P1.zone != 2 or P1.zone == 2 and Ifm.lives == 1:
-                        Ifm.lives -= 1
-                        global Ifm_txt_lives
-                        Ifm_txt_lives = font1.render("残りライフ："+str(Ifm.lives), True, (0, 0, 0))
                     
     def stage_element_process(self, P1SizeX, P1SizeY, P1JumpPower, IfmLives, St_b_enemy, StGoalPosX, StGoalPosY, StGoalSizeX, StGoalSizeY):
         self.ground_list = []
@@ -146,15 +160,21 @@ class information_bar():
         # self.st_change_num = 0
         self.lives = 5
         self.pos = {'x':0,'y':520}
+        self.mouse_on_txt_killME = 0
         self.mouse_on_txt_restart = 0
         self.mouse_on_txt_menu = 0
     def show(self,screen):
         screen.blit(Ifm_txt_stage_num, (self.pos['x'], self.pos['y']))
         if P1.flash == 0 or (P1.flash == 1 or P1.flash == 2) and P1.flash_count//10%2 == 1:
             screen.blit(Ifm_txt_lives, (self.pos['x']+300, self.pos['y']))
+        screen.blit(Ifm_txt_kill_myself, (635, 520))
         screen.blit(Ifm_txt_restart, (600, 545))
         screen.blit(Ifm_txt_menu, (635, 570))
         if Menu.show_YN == 0:
+            if 635 <= pygame.mouse.get_pos()[0] <= 772.5:
+                if 520 <= pygame.mouse.get_pos()[1] <= 545:
+                    self.mouse_on_txt_killME = 1
+                    pygame.draw.rect(screen, (0, 0, 0), (635, 520, 137.5, 25), 1)
             if 600 <= pygame.mouse.get_pos()[0] <= 787.5:
                 if 545 <= pygame.mouse.get_pos()[1] <= 570:
                     self.mouse_on_txt_restart = 1
@@ -296,6 +316,8 @@ def main():
     Ifm_txt_stage_num = font1.render("ステージ："+str(St.st_num), True, (0, 0, 0))
     global Ifm_txt_lives
     Ifm_txt_lives = font1.render("残りライフ："+str(Ifm.lives), True, (0, 0, 0))
+    global Ifm_txt_kill_myself
+    Ifm_txt_kill_myself = font2.render("自爆：tキー", True, (0, 0, 0))
     global Ifm_txt_restart
     Ifm_txt_restart = font2.render("やり直し：rキー", True, (0, 0, 0))
     global Ifm_txt_menu
@@ -334,11 +356,9 @@ def main():
     clock = pygame.time.Clock()
     START_TEXT_RESET = pygame.USEREVENT +1
 
-    global block_toge_png
-    block_toge_png = pygame.transform.rotozoom(pygame.image.load("block_toge.png"),0,St.b_enemy_size[0]/1000)
     global block_toge_png_list
     block_toge_png_list = []
-    for i in range(len(St.goal_size)):
+    for i in range(len(St.b_enemy_size)):
         block_toge_png_list.append(pygame.transform.rotozoom(pygame.image.load("block_toge.png"),0,St.b_enemy_size[i]/1000))
     
     pygame.time.set_timer(START_TEXT_RESET, 1500)
@@ -353,6 +373,8 @@ def main():
             if P1.pos['x'] == 0 and P1.pos['y'] == 360:
                 P1.no_control = 0
 
+        if Ifm.mouse_on_txt_killME == 1:
+            Ifm.mouse_on_txt_killME = 0
         if Ifm.mouse_on_txt_restart == 1:
             Ifm.mouse_on_txt_restart = 0
         if Ifm.mouse_on_txt_menu == 1:
@@ -426,6 +448,9 @@ def main():
                             Menu.page_num = 0
 
                     if Menu.show_YN == 0:       #メニュー外
+                        if event.key == K_t:
+                            if Ifm.lives >= 1:
+                                P1.flash = 1
                         if event.key == K_r:
                             P1.zone = 0
                             P1.flash = 0
@@ -478,6 +503,9 @@ def main():
                                     # Ifm.st_change_num += 1
                                     St.ground_list[int(P1.pos['x']/40)] += 1
             if event.type == MOUSEBUTTONDOWN:
+                if Ifm.mouse_on_txt_killME == 1:
+                    if Ifm.lives >= 1:
+                        P1.flash = 1
                 if Ifm.mouse_on_txt_restart == 1:
                     P1.zone = 0
                     P1.flash = 0
