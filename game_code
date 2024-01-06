@@ -8,13 +8,13 @@ class Player():
         self.size = {'x':40, 'y':40}
         self.vel = {'x':0, 'y':0}
         self.jump_power = -4.0
-        self.zone = 0
+        self.zone = 0   #0が通常、1が編集モード、2がgame over画面
         self.no_control = 0
-        self.flash = 0  #0が通常、1が敵と当たった時、2が編集モード
+        self.flash = 0  #0が通常、1が敵と当たった時、2が編集モード、3が自爆
         self.flash_count = 0
     def show(self, screen):
         if self.zone != 1:
-            if self.flash == 0 or self.flash == 1 and self.flash_count//10%2 == 1:
+            if self.flash == 0 or (self.flash == 1 or self.flash == 3) and self.flash_count//10%2 == 1:
                 pygame.draw.rect(screen, (255,255,0), (self.pos['x'],self.pos['y'],self.size['x'],self.size['y']),0)
         else:
             if self.flash == 0 or (self.flash == 1 or self.flash == 2) and self.flash_count//10%2 == 1:
@@ -22,12 +22,12 @@ class Player():
                 pygame.draw.rect(zone_1_rect, (255,255,0,150), zone_1_rect.get_rect())
                 zone_1_rect.set_alpha(150)# 四角形の透明度を設定
                 screen.blit(zone_1_rect, (self.pos['x'], self.pos['y']))# 四角形を画面に描画
-        if self.flash == 0 or (self.flash == 1 or self.flash == 2) and self.flash_count//10%2 == 1:
+        if self.flash == 0 or (self.flash == 1 or self.flash == 2 or self.flash == 3) and self.flash_count//10%2 == 1:
             pygame.draw.rect(screen, (0,0,0), (self.pos['x'],self.pos['y'],self.size['x'],self.size['y']),1)
     def move(self,vel_x,vel_y):
         if self.flash == 0:
             self.flash_count = 0
-        if self.flash == 1:
+        if self.flash == 1 or self.flash == 3:
             self.flash_count += 1
             if self.flash_count >= (100 if Ifm.lives >= 2 else 300):
                 self.flash = 0
@@ -44,7 +44,7 @@ class Player():
         if self.flash == 2:
             self.flash_count += 1
         
-        if self.flash != 1:
+        if self.flash != 1 and self.flash != 3:
             self.vel['x'] = vel_x
             self.pos['x'] += self.vel['x']
             if 0 >= self.pos['x']:
@@ -81,9 +81,9 @@ class stage():
         self.next = 0
         self.start_text = 1
         self.block_enemy = 0
-        self.b_enemy_pos = [[240,280],[440,220],[300,340]]
-        self.b_enemy_size = [40,100,30]
-        self.b_enemy_vel = [[0,0],[0,0],[3,3]]
+        self.b_enemy1_pos = [[240,280],[440,220],[300,340]]
+        self.b_enemy1_size = [40,100,30]
+        self.b_enemy1_vel = [[0,0],[0,0],[3,3]]
         self.stage_element = [[40,40,-4.0,5,0,720,40,40,80], [40,40,-3.5,5,1,720,40,40,80], [40,40,-4.0,5,2,720,40,40,80], [40,40,-4.0,5,3,720,40,40,80], 
                               [40,40,-4.0,5,4,720,40,40,80], [40,40,-4.0,5,5,720,40,40,80], [40,40,-4.0,5,6,720,40,40,80], [40,40,-4.0,5,7,720,40,40,80],
                               [40,40,-4.0,5,0,720,40,40,80], [40,40,-4.0,5,0,720,40,40,80], [40,40,-4.0,5,0,720,40,40,80], [40,40,-4.0,5,0,720,40,40,80],
@@ -116,7 +116,7 @@ class stage():
         pygame.draw.line(screen, (0,0,0), (0,520), (800, 520))
         for i in range(1, len(format(self.block_enemy, 'b'))+1):
             if int(str(format(self.block_enemy, 'b'))[-i]) == 1:
-                screen.blit(block_toge_png_list[i-1],(self.b_enemy_pos[i-1][0],self.b_enemy_pos[i-1][1]))
+                screen.blit(block_toge_png_list[i-1],(self.b_enemy1_pos[i-1][0],self.b_enemy1_pos[i-1][1]))
     def show_2(self, screen):   #最前面
         if St.start_text != 0:
             St_start_txt_1 = font3.render("ステージ："+str(St.st_num), True, (0, 0, 0))
@@ -127,15 +127,15 @@ class stage():
     def b_enemy_move(self):
         for i in range(1, len(format(self.block_enemy, 'b'))+1):
             if int(str(format(self.block_enemy, 'b'))[-i]) == 1:
-                self.b_enemy_pos[i-1][0] += self.b_enemy_vel[i-1][0]
-                if 0 > self.b_enemy_pos[i-1][0] or self.b_enemy_pos[i-1][0] > 800-self.b_enemy_size[i-1]:
-                    self.b_enemy_vel[i-1][0] *= -1
-                self.b_enemy_pos[i-1][1] += self.b_enemy_vel[i-1][1]
-                if 0 > self.b_enemy_pos[i-1][1] or self.b_enemy_pos[i-1][1] > 520-self.b_enemy_size[i-1]:
-                    self.b_enemy_vel[i-1][1] *= -1
+                self.b_enemy1_pos[i-1][0] += self.b_enemy1_vel[i-1][0]
+                if 0 > self.b_enemy1_pos[i-1][0] or self.b_enemy1_pos[i-1][0] > 800-self.b_enemy1_size[i-1]:
+                    self.b_enemy1_vel[i-1][0] *= -1
+                self.b_enemy1_pos[i-1][1] += self.b_enemy1_vel[i-1][1]
+                if 0 > self.b_enemy1_pos[i-1][1] or self.b_enemy1_pos[i-1][1] > 520-self.b_enemy1_size[i-1]:
+                    self.b_enemy1_vel[i-1][1] *= -1
     def block_enemy_judgement(self,b_enemy_num):
-        if self.b_enemy_pos[b_enemy_num-1][0] <= P1.pos['x'] < self.b_enemy_pos[b_enemy_num-1][0]+self.b_enemy_size[b_enemy_num-1] or self.b_enemy_pos[b_enemy_num-1][0] < P1.pos['x']+P1.size['x'] <= self.b_enemy_pos[b_enemy_num-1][0]+self.b_enemy_size[b_enemy_num-1]:
-            if self.b_enemy_pos[b_enemy_num-1][1] <= P1.pos['y'] < self.b_enemy_pos[b_enemy_num-1][1]+self.b_enemy_size[b_enemy_num-1] or self.b_enemy_pos[b_enemy_num-1][1] < P1.pos['y']+P1.size['y'] <= self.b_enemy_pos[b_enemy_num-1][1]+self.b_enemy_size[b_enemy_num-1]:
+        if self.b_enemy1_pos[b_enemy_num-1][0] <= P1.pos['x'] < self.b_enemy1_pos[b_enemy_num-1][0]+self.b_enemy1_size[b_enemy_num-1] or self.b_enemy1_pos[b_enemy_num-1][0] < P1.pos['x']+P1.size['x'] <= self.b_enemy1_pos[b_enemy_num-1][0]+self.b_enemy1_size[b_enemy_num-1]:
+            if self.b_enemy1_pos[b_enemy_num-1][1] <= P1.pos['y'] < self.b_enemy1_pos[b_enemy_num-1][1]+self.b_enemy1_size[b_enemy_num-1] or self.b_enemy1_pos[b_enemy_num-1][1] < P1.pos['y']+P1.size['y'] <= self.b_enemy1_pos[b_enemy_num-1][1]+self.b_enemy1_size[b_enemy_num-1]:
                 P1.vel['x'] = 0
                 P1.vel['y'] = 0
                 if P1.no_control == 0:
@@ -165,9 +165,10 @@ class information_bar():
         self.mouse_on_txt_menu = 0
     def show(self,screen):
         screen.blit(Ifm_txt_stage_num, (self.pos['x'], self.pos['y']))
-        if P1.flash == 0 or (P1.flash == 1 or P1.flash == 2) and P1.flash_count//10%2 == 1:
+        if P1.flash == 0 or (P1.flash == 1 or P1.flash == 2 or P1.flash == 3) and P1.flash_count//10%2 == 1:
             screen.blit(Ifm_txt_lives, (self.pos['x']+300, self.pos['y']))
-        screen.blit(Ifm_txt_kill_myself, (635, 520))
+        if P1.flash == 0 or P1.flash == 1 or P1.flash == 2 or P1.flash == 3 and P1.flash_count//10%2 == 1:
+            screen.blit(Ifm_txt_kill_myself, (635, 520))
         screen.blit(Ifm_txt_restart, (600, 545))
         screen.blit(Ifm_txt_menu, (635, 570))
         if Menu.show_YN == 0:
@@ -358,8 +359,8 @@ def main():
 
     global block_toge_png_list
     block_toge_png_list = []
-    for i in range(len(St.b_enemy_size)):
-        block_toge_png_list.append(pygame.transform.rotozoom(pygame.image.load("block_toge.png"),0,St.b_enemy_size[i]/1000))
+    for i in range(len(St.b_enemy1_size)):
+        block_toge_png_list.append(pygame.transform.rotozoom(pygame.image.load("block_toge.png"),0,St.b_enemy1_size[i]/1000))
     
     pygame.time.set_timer(START_TEXT_RESET, 1500)
     while True:
@@ -450,7 +451,9 @@ def main():
                     if Menu.show_YN == 0:       #メニュー外
                         if event.key == K_t:
                             if Ifm.lives >= 1:
-                                P1.flash = 1
+                                P1.zone = 0
+                                P1.flash_count = 0
+                                P1.flash = 3
                         if event.key == K_r:
                             P1.zone = 0
                             P1.flash = 0
@@ -505,7 +508,9 @@ def main():
             if event.type == MOUSEBUTTONDOWN:
                 if Ifm.mouse_on_txt_killME == 1:
                     if Ifm.lives >= 1:
-                        P1.flash = 1
+                        P1.zone = 0
+                        P1.flash_count = 0
+                        P1.flash = 3
                 if Ifm.mouse_on_txt_restart == 1:
                     P1.zone = 0
                     P1.flash = 0
