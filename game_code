@@ -1,6 +1,7 @@
 import pygame
 from pygame.locals import *
 import sys
+import random
 
 class Player():
     def __init__(self):
@@ -81,12 +82,12 @@ class stage():
         self.next = 0
         self.start_text = 1
         self.block_enemy = 0
-        self.b_enemy1_pos = [[240,280],[440,220],[300,340]]
-        self.b_enemy1_size = [40,100,30]
-        self.b_enemy1_vel = [[0,0],[0,0],[3,3]]
+        self.b_enemy1_pos = [[240,280],[440,220],[300,340],[780,0]]
+        self.b_enemy1_size = [40,100,30,20]
+        self.b_enemy1_vel = [[0,0],[0,0],[3,3],[1,1]]
         self.stage_element = [[40,40,-4.0,5,0,720,40,40,80], [40,40,-3.5,5,1,720,40,40,80], [40,40,-4.0,5,2,720,40,40,80], [40,40,-4.0,5,3,720,40,40,80], 
                               [40,40,-4.0,5,4,720,40,40,80], [40,40,-4.0,5,5,720,40,40,80], [40,40,-4.0,5,6,720,40,40,80], [40,40,-4.0,5,7,720,40,40,80],
-                              [40,40,-4.0,5,0,720,40,40,80], [40,40,-4.0,5,0,720,40,40,80], [40,40,-4.0,5,0,720,40,40,80], [40,40,-4.0,5,0,720,40,40,80],
+                              [40,40,-4.0,5,8,720,40,40,80], [40,40,-4.0,5,0,720,40,40,80], [40,40,-4.0,5,0,720,40,40,80], [40,40,-4.0,5,0,720,40,40,80],
                               [40,40,-4.0,5,0,720,40,40,80], [40,40,-4.0,5,0,720,40,40,80], [40,40,-4.0,5,0,720,40,40,80], [40,40,-4.0,5,0,720,40,40,80],
                               [40,40,-4.0,5,0,720,40,40,80], [40,40,-4.0,5,0,720,40,40,80], [40,40,-4.0,5,0,720,40,40,80], [40,40,-4.0,5,0,720,40,40,80],
                               [40,40,-4.0,5,0,720,40,40,80], [40,40,-4.0,5,0,720,40,40,80], [40,40,-4.0,5,0,720,40,40,80],]
@@ -96,10 +97,10 @@ class stage():
             if Menu.show_YN == 0:
                 self.b_enemy_move()
         if P1.zone == 0:
-                if self.block_enemy != 0:
-                    for i in range(1,len(format(self.block_enemy, 'b'))+1):
-                        if int(str(format(self.block_enemy, 'b'))[-i]) == 1:
-                            self.block_enemy_judgement(i)
+            if self.block_enemy != 0:
+                for i in range(1,len(format(self.block_enemy, 'b'))+1):
+                    if int(str(format(self.block_enemy, 'b'))[-i]) == 1:
+                        self.block_enemy_judgement(i)
     def show(self,screen):
         pygame.draw.ellipse(screen, (255,255,0), (self.goal_pos['x'], self.goal_pos['y'], self.goal_size['x'], self.goal_size['y']),0)
         for i in range(20):
@@ -127,12 +128,56 @@ class stage():
     def b_enemy_move(self):
         for i in range(1, len(format(self.block_enemy, 'b'))+1):
             if int(str(format(self.block_enemy, 'b'))[-i]) == 1:
-                self.b_enemy1_pos[i-1][0] += self.b_enemy1_vel[i-1][0]
-                if 0 > self.b_enemy1_pos[i-1][0] or self.b_enemy1_pos[i-1][0] > 800-self.b_enemy1_size[i-1]:
-                    self.b_enemy1_vel[i-1][0] *= -1
-                self.b_enemy1_pos[i-1][1] += self.b_enemy1_vel[i-1][1]
-                if 0 > self.b_enemy1_pos[i-1][1] or self.b_enemy1_pos[i-1][1] > 520-self.b_enemy1_size[i-1]:
-                    self.b_enemy1_vel[i-1][1] *= -1
+                e1_posX = self.b_enemy1_pos[i-1][0]
+                e1_posY = self.b_enemy1_pos[i-1][1]
+                e1_velX = self.b_enemy1_vel[i-1][0]
+                e1_velY = self.b_enemy1_vel[i-1][1]
+
+                e1_posX += e1_velX
+                e1_posY += e1_velY
+                if i == 1 or i == 2 or i == 3:
+                    if 0 > e1_posX:
+                        e1_posX = 0
+                        e1_velX *= -1
+                    elif e1_posX > 800-self.b_enemy1_size[i-1]:
+                        e1_posX = 800-self.b_enemy1_size[i-1]
+                        e1_velX *= -1
+                    if 0 > e1_posY:
+                        e1_posY = 0
+                        e1_velY *= -1
+                    elif e1_posY > 520-self.b_enemy1_size[i-1]:
+                        e1_posY = 520-self.b_enemy1_size[i-1]
+                        e1_velY *= -1
+                elif i == 4:
+                    if 0 > e1_posX:
+                        e1_posX = 0
+                        e1_velX *= -random.choice([0.5, 0.5, 1, 2])
+                        e1_velY *= random.choice([0.5, 0.5, 1, 2, 4])
+                    elif e1_posX > 800-self.b_enemy1_size[i-1]:
+                        e1_posX = 800-self.b_enemy1_size[i-1]
+                        e1_velX *= -random.choice([0.5, 0.5, 1, 2, 4])
+                        e1_velY *= random.choice([0.5, 0.5, 1, 2, 4])
+                    if abs(e1_velX) < 1:
+                        e1_velX = 1 if e1_velX >= 0 else -1
+                    elif 8 < abs(e1_velX):
+                        e1_velX = 8 if e1_velX > 8 else -8
+
+                    if 0 > e1_posY:
+                        e1_posY = 0
+                        e1_velX *= random.choice([0.5, 0.5, 1, 2, 4])
+                        e1_velY *= -random.choice([0.5, 0.5, 1, 2, 4])
+                    elif e1_posY > 520-self.b_enemy1_size[i-1]:
+                        e1_posY = 520-self.b_enemy1_size[i-1]
+                        e1_velX *= random.choice([0.5, 0.5, 1, 2, 4])
+                        e1_velY *= -random.choice([0.5, 0.5, 1, 2, 4])
+                    if abs(e1_velY) < 1:
+                        e1_velY = 1 if e1_velY >= 0 else -1
+                    elif 8 < abs(e1_velY):
+                        e1_velY = 8 if e1_velY > 8 else -8
+                self.b_enemy1_pos[i-1][0] = e1_posX
+                self.b_enemy1_pos[i-1][1] = e1_posY
+                self.b_enemy1_vel[i-1][0] = e1_velX
+                self.b_enemy1_vel[i-1][1] = e1_velY
     def block_enemy_judgement(self,b_enemy_num):
         if self.b_enemy1_pos[b_enemy_num-1][0] <= P1.pos['x'] < self.b_enemy1_pos[b_enemy_num-1][0]+self.b_enemy1_size[b_enemy_num-1] or self.b_enemy1_pos[b_enemy_num-1][0] < P1.pos['x']+P1.size['x'] <= self.b_enemy1_pos[b_enemy_num-1][0]+self.b_enemy1_size[b_enemy_num-1]:
             if self.b_enemy1_pos[b_enemy_num-1][1] <= P1.pos['y'] < self.b_enemy1_pos[b_enemy_num-1][1]+self.b_enemy1_size[b_enemy_num-1] or self.b_enemy1_pos[b_enemy_num-1][1] < P1.pos['y']+P1.size['y'] <= self.b_enemy1_pos[b_enemy_num-1][1]+self.b_enemy1_size[b_enemy_num-1]:
@@ -638,6 +683,7 @@ def main():
         if St.next == 1:
             P1.no_control = 1
             GoalAndNextStage(St.st_num + 1 if St.st_num <= 22 else 1)
+
 
         pygame.display.update()
         clock.tick(90)
