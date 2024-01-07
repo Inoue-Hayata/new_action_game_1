@@ -85,6 +85,9 @@ class stage():
         self.b_enemy1_pos = [[240,280],[440,220],[300,340],[780,0]]
         self.b_enemy1_size = [40,100,30,20]
         self.b_enemy1_vel = [[0,0],[0,0],[3,3],[1,1]]
+        self.coin_num = 0   #コインの個数
+        self.coin_pos = []
+        self.coin_size = {'x':32, 'y':40}   #今のところ変更なし
         self.stage_element = [[40,40,-4.0,5,0,720,40,40,80], [40,40,-3.5,5,1,720,40,40,80], [40,40,-4.0,5,2,720,40,40,80], [40,40,-4.0,5,3,720,40,40,80], 
                               [40,40,-4.0,5,4,720,40,40,80], [40,40,-4.0,5,5,720,40,40,80], [40,40,-4.0,5,6,720,40,40,80], [40,40,-4.0,5,7,720,40,40,80],
                               [40,40,-4.0,5,8,720,40,40,80], [40,40,-4.0,5,0,720,40,40,80], [40,40,-4.0,5,0,720,40,40,80], [40,40,-4.0,5,0,720,40,40,80],
@@ -187,7 +190,7 @@ class stage():
                     P1.flash = 1
                 P1.no_control = 1
                     
-    def stage_element_process(self, P1SizeX, P1SizeY, P1JumpPower, IfmLives, St_b_enemy, StGoalPosX, StGoalPosY, StGoalSizeX, StGoalSizeY):
+    def stage_element_process(self, P1SizeX, P1SizeY, P1JumpPower, IfmLives, St_b_enemy, StGoalPosX, StGoalPosY, StGoalSizeX, StGoalSizeY, StCoinNum):
         self.ground_list = []
         for i in range(20):
             self.ground_list.append(0)
@@ -199,6 +202,12 @@ class stage():
         self.block_enemy = St_b_enemy
         self.goal_pos = {'x':StGoalPosX, 'y':StGoalPosY}
         self.goal_size = {'x':StGoalSizeX, 'y':StGoalSizeY}
+        self.coin_num = StCoinNum
+        # while True:
+        #     Test_X = random.randint(0, 800-self.coin_size['x'])
+        #     Test_Y = random.randint(0, 520-self.coin_size['y'])
+        #     if :
+        #         return                                                    #koko
 
 class information_bar():
     def __init__(self):
@@ -406,7 +415,10 @@ def main():
     block_toge_png_list = []
     for i in range(len(St.b_enemy1_size)):
         block_toge_png_list.append(pygame.transform.rotozoom(pygame.image.load("block_toge.png"),0,St.b_enemy1_size[i]/1000))
-    
+
+    global coin_png
+    coin_png = pygame.transform.rotozoom(pygame.image.load("coin.png"),0,40/1000)
+
     pygame.time.set_timer(START_TEXT_RESET, 1500)
     while True:
         screen.fill((255,255,255))
