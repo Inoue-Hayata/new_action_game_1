@@ -87,13 +87,13 @@ class stage():
         self.b_enemy1_vel = [[0,0],[0,0],[3,3],[1,1]]
         self.coin_num = 0   #コインの個数
         self.coin_pos = []
-        self.coin_size = {'x':32, 'y':40}   #今のところ変更なし
-        self.stage_element = [[40,40,-4.0,5,0,720,40,40,80], [40,40,-3.5,5,1,720,40,40,80], [40,40,-4.0,5,2,720,40,40,80], [40,40,-4.0,5,3,720,40,40,80], 
-                              [40,40,-4.0,5,4,720,40,40,80], [40,40,-4.0,5,5,720,40,40,80], [40,40,-4.0,5,6,720,40,40,80], [40,40,-4.0,5,7,720,40,40,80],
-                              [40,40,-4.0,5,8,720,40,40,80], [40,40,-4.0,5,0,720,40,40,80], [40,40,-4.0,5,0,720,40,40,80], [40,40,-4.0,5,0,720,40,40,80],
-                              [40,40,-4.0,5,0,720,40,40,80], [40,40,-4.0,5,0,720,40,40,80], [40,40,-4.0,5,0,720,40,40,80], [40,40,-4.0,5,0,720,40,40,80],
-                              [40,40,-4.0,5,0,720,40,40,80], [40,40,-4.0,5,0,720,40,40,80], [40,40,-4.0,5,0,720,40,40,80], [40,40,-4.0,5,0,720,40,40,80],
-                              [40,40,-4.0,5,0,720,40,40,80], [40,40,-4.0,5,0,720,40,40,80], [40,40,-4.0,5,0,720,40,40,80],]
+        self.coin_size = [32,40]   #今のところ変更なし
+        self.stage_element = [[40,40,-4.0,5,0,720,40,40,80,0], [40,40,-3.5,5,1,720,40,40,80,0], [40,40,-4.0,5,2,720,40,40,80,0], [40,40,-4.0,5,3,720,40,40,80,0], 
+                              [40,40,-4.0,5,4,720,40,40,80,0], [40,40,-4.0,5,5,720,40,40,80,0], [40,40,-4.0,5,6,720,40,40,80,0], [40,40,-4.0,5,7,720,40,40,80,0],
+                              [40,40,-4.0,5,8,720,40,40,80,0], [40,40,-4.0,5,0,720,40,40,80,5], [40,40,-4.0,5,0,720,40,40,80,0], [40,40,-4.0,5,0,720,40,40,80,0],
+                              [40,40,-4.0,5,0,720,40,40,80,0], [40,40,-4.0,5,0,720,40,40,80,0], [40,40,-4.0,5,0,720,40,40,80,0], [40,40,-4.0,5,0,720,40,40,80,0],
+                              [40,40,-4.0,5,0,720,40,40,80,0], [40,40,-4.0,5,0,720,40,40,80,0], [40,40,-4.0,5,0,720,40,40,80,0], [40,40,-4.0,5,0,720,40,40,80,0],
+                              [40,40,-4.0,5,0,720,40,40,80,0], [40,40,-4.0,5,0,720,40,40,80,0], [40,40,-4.0,5,0,720,40,40,80,0],]
     def St_main(self,screen):
         self.show(screen)
         if P1.flash == 0:
@@ -105,22 +105,24 @@ class stage():
                     if int(str(format(self.block_enemy, 'b'))[-i]) == 1:
                         self.block_enemy_judgement(i)
     def show(self,screen):
-        pygame.draw.ellipse(screen, (255,255,0), (self.goal_pos['x'], self.goal_pos['y'], self.goal_size['x'], self.goal_size['y']),0)
+        pygame.draw.ellipse(screen, (255,255,0), (self.goal_pos['x'], self.goal_pos['y'], self.goal_size['x'], self.goal_size['y']),0)  #ゴール(黄色塗りつぶし)
         for i in range(20):
-            pygame.draw.rect(screen, (90,90,90), (i*40, 0, 40, 120+self.ground_list[i]*40),0)
-            pygame.draw.rect(screen, (90,90,90), (i*40, 400+self.ground_list[i]*40, 40, 520-(400+self.ground_list[i]*40)),0)
+            pygame.draw.rect(screen, (90,90,90), (i*40, 0, 40, 120+self.ground_list[i]*40),0)   #ステージ天井ブロック
+            pygame.draw.rect(screen, (90,90,90), (i*40, 400+self.ground_list[i]*40, 40, 520-(400+self.ground_list[i]*40)),0)    #ステージ地面ブロック
         for i in range(20):
-            pygame.draw.line(screen, (0,0,0), (i*40,120+self.ground_list[i]*40), (i*40+40,120+self.ground_list[i]*40),1)
-            pygame.draw.line(screen, (0,0,0), (i*40,400+self.ground_list[i]*40), (i*40+40,400+self.ground_list[i]*40),1)
+            pygame.draw.line(screen, (0,0,0), (i*40,120+self.ground_list[i]*40), (i*40+40,120+self.ground_list[i]*40),1)    #ステージ天井境界線(横)
+            pygame.draw.line(screen, (0,0,0), (i*40,400+self.ground_list[i]*40), (i*40+40,400+self.ground_list[i]*40),1)    #ステージ地面境界線(横)
         for i in range(19):
-            pygame.draw.line(screen, (0,0,0), (i*40+40,120+self.ground_list[i]*40), (i*40+40,120+self.ground_list[i+1]*40),1)
-            pygame.draw.line(screen, (0,0,0), (i*40+40,400+self.ground_list[i]*40), (i*40+40,400+self.ground_list[i+1]*40),1)
-        pygame.draw.ellipse(screen, (255,255,0), (self.goal_pos['x'], self.goal_pos['y'], self.goal_size['x'], self.goal_size['y']),1)
-        pygame.draw.rect(screen, (255,255,255), (0, 520, 800, 80))
-        pygame.draw.line(screen, (0,0,0), (0,520), (800, 520))
+            pygame.draw.line(screen, (0,0,0), (i*40+40,120+self.ground_list[i]*40), (i*40+40,120+self.ground_list[i+1]*40),1)   #ステージ天井境界線(縦)
+            pygame.draw.line(screen, (0,0,0), (i*40+40,400+self.ground_list[i]*40), (i*40+40,400+self.ground_list[i+1]*40),1)   #ステージ地面境界線(縦)
+        pygame.draw.ellipse(screen, (255,255,0), (self.goal_pos['x'], self.goal_pos['y'], self.goal_size['x'], self.goal_size['y']),1)  #ゴール枠(黄色)
+        pygame.draw.rect(screen, (255,255,255), (0, 520, 800, 80))  #Ifm背景
+        pygame.draw.line(screen, (0,0,0), (0,520), (800, 520))  #Ifm境界線
         for i in range(1, len(format(self.block_enemy, 'b'))+1):
             if int(str(format(self.block_enemy, 'b'))[-i]) == 1:
-                screen.blit(block_toge_png_list[i-1],(self.b_enemy1_pos[i-1][0],self.b_enemy1_pos[i-1][1]))
+                screen.blit(block_toge_png_list[i-1],(self.b_enemy1_pos[i-1][0],self.b_enemy1_pos[i-1][1])) #とげブロック
+        for i in range(self.coin_num):
+            screen.blit(coin_png, (self.coin_pos[i][0], self.coin_pos[i][1]))
     def show_2(self, screen):   #最前面
         if St.start_text != 0:
             St_start_txt_1 = font3.render("ステージ："+str(St.st_num), True, (0, 0, 0))
@@ -189,7 +191,7 @@ class stage():
                 if P1.no_control == 0:
                     P1.flash = 1
                 P1.no_control = 1
-                    
+
     def stage_element_process(self, P1SizeX, P1SizeY, P1JumpPower, IfmLives, St_b_enemy, StGoalPosX, StGoalPosY, StGoalSizeX, StGoalSizeY, StCoinNum):
         self.ground_list = []
         for i in range(20):
@@ -203,11 +205,24 @@ class stage():
         self.goal_pos = {'x':StGoalPosX, 'y':StGoalPosY}
         self.goal_size = {'x':StGoalSizeX, 'y':StGoalSizeY}
         self.coin_num = StCoinNum
-        # while True:
-        #     Test_X = random.randint(0, 800-self.coin_size['x'])
-        #     Test_Y = random.randint(0, 520-self.coin_size['y'])
-        #     if :
-        #         return                                                    #koko
+        self.coin_pos = []
+        for i in range(self.coin_num):
+            while True:
+                Test_X = random.randint(0, 800-self.coin_size[0])
+                Test_Y = random.randint(0, 520-self.coin_size[1])
+                No_use = 0
+                if abs(Test_X - P1.pos['x']) <= 100:
+                    No_use = 1
+                elif abs(Test_Y - P1.pos['y']) <= 100:
+                    No_use = 1
+                else:
+                    for i in range(len(self.coin_pos)):
+                        if Test_X <= self.coin_pos[i][0] <= Test_X+self.coin_size[0] or Test_X <= self.coin_pos[i][0]+self.coin_size[0] <= Test_X+self.coin_size[0]:
+                            if Test_Y <= self.coin_pos[i][1] <= Test_Y+self.coin_size[1] or Test_Y <= self.coin_pos[i][1]+self.coin_size[1] <= Test_Y+self.coin_size[1]:
+                                No_use = 1
+                if No_use == 0:
+                    self.coin_pos.append([Test_X, Test_Y])
+                    break
 
 class information_bar():
     def __init__(self):
@@ -500,7 +515,7 @@ def main():
                                                              St.stage_element[St.st_num-1][2], St.stage_element[St.st_num-1][3],
                                                              St.stage_element[St.st_num-1][4], St.stage_element[St.st_num-1][5],
                                                              St.stage_element[St.st_num-1][6], St.stage_element[St.st_num-1][7],
-                                                             St.stage_element[St.st_num-1][8])
+                                                             St.stage_element[St.st_num-1][8], St.stage_element[St.st_num-1][9])
                                     pygame.time.set_timer(START_TEXT_RESET, 2000)
                         if event.key == K_b:
                             Menu.page_num = 0
@@ -522,7 +537,7 @@ def main():
                                                      St.stage_element[St.st_num-1][2], St.stage_element[St.st_num-1][3],
                                                      St.stage_element[St.st_num-1][4], St.stage_element[St.st_num-1][5],
                                                      St.stage_element[St.st_num-1][6], St.stage_element[St.st_num-1][7],
-                                                     St.stage_element[St.st_num-1][8])
+                                                     St.stage_element[St.st_num-1][8], St.stage_element[St.st_num-1][9])
                             pygame.time.set_timer(START_TEXT_RESET, 2000)
                         if event.key == K_m:    #メニューを開く
                             Menu.page_num = 0
@@ -579,7 +594,7 @@ def main():
                                              St.stage_element[St.st_num-1][2], St.stage_element[St.st_num-1][3],
                                              St.stage_element[St.st_num-1][4], St.stage_element[St.st_num-1][5],
                                              St.stage_element[St.st_num-1][6], St.stage_element[St.st_num-1][7],
-                                             St.stage_element[St.st_num-1][8])
+                                             St.stage_element[St.st_num-1][8], St.stage_element[St.st_num-1][9])
                     pygame.time.set_timer(START_TEXT_RESET, 2000)
                 if Ifm.mouse_on_txt_menu == 1:
                     Menu.page_num = 0
@@ -611,7 +626,7 @@ def main():
                                                  St.stage_element[St.st_num-1][2], St.stage_element[St.st_num-1][3],
                                                  St.stage_element[St.st_num-1][4], St.stage_element[St.st_num-1][5],
                                                  St.stage_element[St.st_num-1][6], St.stage_element[St.st_num-1][7],
-                                                 St.stage_element[St.st_num-1][8])
+                                                 St.stage_element[St.st_num-1][8], St.stage_element[St.st_num-1][9])
                         pygame.time.set_timer(START_TEXT_RESET, 2000)
                 if Menu.mouse_on_back == 1:
                     Menu.page_num = 0
@@ -670,7 +685,7 @@ def main():
                                          St.stage_element[St.st_num-1][2], St.stage_element[St.st_num-1][3],
                                          St.stage_element[St.st_num-1][4], St.stage_element[St.st_num-1][5],
                                          St.stage_element[St.st_num-1][6], St.stage_element[St.st_num-1][7],
-                                         St.stage_element[St.st_num-1][8])
+                                         St.stage_element[St.st_num-1][8], St.stage_element[St.st_num-1][9])
                 St.start_text = St.st_num
                 global Ifm_txt_stage_num
                 Ifm_txt_stage_num = font1.render("ステージ："+str(St.st_num), True, (0, 0, 0))
