@@ -107,7 +107,8 @@ class stage():
                         self.block_enemy_judgement(i)
             self.coin_judgement()
     def show(self,screen):
-        pygame.draw.ellipse(screen, (255,255,0), (self.goal_pos['x'], self.goal_pos['y'], self.goal_size['x'], self.goal_size['y']),0)  #ゴール(黄色塗りつぶし)
+        if self.coin_count == self.coin_num:
+            pygame.draw.ellipse(screen, (255,255,0), (self.goal_pos['x'], self.goal_pos['y'], self.goal_size['x'], self.goal_size['y']),0)  #ゴール(黄色塗りつぶし)
         for i in range(20):
             pygame.draw.rect(screen, (90,90,90), (i*40, 0, 40, 120+self.ground_list[i]*40),0)   #ステージ天井ブロック
             pygame.draw.rect(screen, (90,90,90), (i*40, 400+self.ground_list[i]*40, 40, 520-(400+self.ground_list[i]*40)),0)    #ステージ地面ブロック
@@ -117,7 +118,8 @@ class stage():
         for i in range(19):
             pygame.draw.line(screen, (0,0,0), (i*40+40,120+self.ground_list[i]*40), (i*40+40,120+self.ground_list[i+1]*40),1)   #ステージ天井境界線(縦)
             pygame.draw.line(screen, (0,0,0), (i*40+40,400+self.ground_list[i]*40), (i*40+40,400+self.ground_list[i+1]*40),1)   #ステージ地面境界線(縦)
-        pygame.draw.ellipse(screen, (255,255,0), (self.goal_pos['x'], self.goal_pos['y'], self.goal_size['x'], self.goal_size['y']),1)  #ゴール枠(黄色)
+        if self.coin_count == self.coin_num:
+            pygame.draw.ellipse(screen, (255,255,0), (self.goal_pos['x'], self.goal_pos['y'], self.goal_size['x'], self.goal_size['y']),1)  #ゴール枠(黄色)
         pygame.draw.rect(screen, (255,255,255), (0, 520, 800, 80))  #Ifm背景
         pygame.draw.line(screen, (0,0,0), (0,520), (800, 520))  #Ifm境界線
         for i in range(1, len(format(self.block_enemy, 'b'))+1):
@@ -194,7 +196,7 @@ class stage():
                 if P1.no_control == 0:
                     P1.flash = 1
                 P1.no_control = 1
-    def coin_judgement(self):   #ここなど
+    def coin_judgement(self):
         for i in range(self.coin_num):
             if self.coin_pos[i] != None:
                 if P1.pos['x'] <= self.coin_pos[i][0] <= P1.pos['x']+P1.size['x'] or P1.pos['x'] <= self.coin_pos[i][0]+self.coin_size[0] <= P1.pos['x']+P1.size['x']:
@@ -733,8 +735,9 @@ def main():
         elif (abs((St.goal_pos['x']+St.goal_size['x']/2)-(P1.pos['x']+P1.size['x']))**2+abs((St.goal_pos['y']+5.5)-(P1.pos['y']+P1.size['y']))**2)**0.5 + (abs((St.goal_pos['x']+St.goal_size['x']/2)-(P1.pos['x']+P1.size['x']))**2+abs((St.goal_pos['y']+74.5)-(P1.pos['y']+P1.size['y']))**2)**0.5 < 79:
             St.next = 1
         if St.next == 1:
-            P1.no_control = 1
-            GoalAndNextStage(St.st_num + 1 if St.st_num <= 22 else 1)
+            if St.coin_count == St.coin_num:
+                P1.no_control = 1
+                GoalAndNextStage(St.st_num + 1 if St.st_num <= 22 else 1)
 
 
         pygame.display.update()
