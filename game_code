@@ -194,7 +194,7 @@ class stage():
                 if P1.no_control == 0:
                     P1.flash = 1
                 P1.no_control = 1
-    def coin_judgement(self):
+    def coin_judgement(self):   #ここなど
         for i in range(self.coin_num):
             if self.coin_pos[i] != None:
                 if P1.pos['x'] <= self.coin_pos[i][0] <= P1.pos['x']+P1.size['x'] or P1.pos['x'] <= self.coin_pos[i][0]+self.coin_size[0] <= P1.pos['x']+P1.size['x']:
