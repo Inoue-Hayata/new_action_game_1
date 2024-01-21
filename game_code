@@ -379,6 +379,7 @@ class menu():
 
 def main():
     pygame.init()
+    pygame.mixer.init()
     screen = pygame.display.set_mode((800, 600))
     global P1
     P1 = Player()
@@ -454,6 +455,17 @@ def main():
     global coin_png
     coin_png = pygame.transform.rotozoom(pygame.image.load("coin.png"),0,40/1000)
 
+    global goal_sound
+    goal_sound = pygame.mixer.Sound('goal.mp3')
+    global decision_sound
+    decision_sound = pygame.mixer.Sound('decision.mp3')
+    global serect_sound
+    serect_sound = pygame.mixer.Sound('serect.mp3')
+    global open_menu_sound
+    open_menu_sound = pygame.mixer.Sound('open_menu.mp3')
+    global cancel_sound
+    cancel_sound = pygame.mixer.Sound('cancel.mp3')
+
     pygame.time.set_timer(START_TEXT_RESET, 1500)
     while True:
         screen.fill((255,255,255))
@@ -499,11 +511,14 @@ def main():
                 if St.next == 0:
                     if Menu.show_YN == 1:       #メニュー内
                         if event.key == K_x:
+                            cancel_sound.play()
                             Menu.show_YN = 0
                         if Menu.page_num == 0:
                             if event.key == K_1:
+                                serect_sound.play()
                                 Menu.page_num = 1
                             if event.key == K_2:
+                                serect_sound.play()
                                 Menu.page_num = 2
                                 Menu.SSP_pos_index = St.st_num-1
                                 Menu.SSP_pos_GapY = 0
@@ -511,16 +526,19 @@ def main():
                         if Menu.page_num == 2:
                             if event.key == K_RIGHT:
                                 if Menu.SSP_pos_index <= 21:
+                                    serect_sound.play()
                                     Menu.SSP_pos_index += 1
                                     Menu.SSP_pos_GapY = 0
                                     Menu.SSP_velY = 0
                             if event.key == K_LEFT:
                                 if Menu.SSP_pos_index >= 1:
+                                    serect_sound.play()
                                     Menu.SSP_pos_index -= 1
                                     Menu.SSP_pos_GapY = 0
                                     Menu.SSP_velY = 0
                             if event.key == K_RETURN:
                                 if St.st_num != Menu.SSP_pos_index+1:
+                                    decision_sound.play()
                                     St.st_num = Menu.SSP_pos_index+1
                                     St.start_text = St.st_num
                                     Ifm_txt_stage_num = font1.render("ステージ："+str(St.st_num), True, (0, 0, 0))
@@ -541,6 +559,7 @@ def main():
                                                              St.stage_element[St.st_num-1][10])
                                     pygame.time.set_timer(START_TEXT_RESET, 2000)
                         if event.key == K_b:
+                            cancel_sound.play()
                             Menu.page_num = 0
 
                     if Menu.show_YN == 0:       #メニュー外
@@ -566,6 +585,7 @@ def main():
                                                      St.stage_element[St.st_num-1][10])
                             pygame.time.set_timer(START_TEXT_RESET, 2000)
                         if event.key == K_m:    #メニューを開く
+                            open_menu_sound.play()
                             Menu.page_num = 0
                             Menu.show_YN = 1
                         if event.key == K_0:
@@ -625,22 +645,28 @@ def main():
                                              St.stage_element[St.st_num-1][10])
                     pygame.time.set_timer(START_TEXT_RESET, 2000)
                 if Ifm.mouse_on_txt_menu == 1:
+                    open_menu_sound.play()
                     Menu.page_num = 0
                     Menu.show_YN = 1
                     # Ifm.mouse_on_txt_menu = 0 #show()の前に書くことを忘れずに
                 if Menu.mouse_on_cross == 1:
+                    cancel_sound.play()
                     Menu.show_YN = 0
                 if Menu.mouse_on_txt_X == 1:
+                    cancel_sound.play()
                     Menu.show_YN = 0
                 if Menu.mouse_on_maintxt_HowToPlay == 1:
+                    serect_sound.play()
                     Menu.page_num = 1
                 if Menu.mouse_on_maintxt_SerectSt == 1:
+                    serect_sound.play()
                     Menu.page_num = 2
                     Menu.SSP_pos_index = St.st_num-1
                     Menu.SSP_pos_GapY = 0
                     Menu.SSP_velY = 0
                 if Menu.mouse_on_pagetxt_SerectSt != 0:
                     if St.st_num != Menu.mouse_on_pagetxt_SerectSt:
+                        decision_sound.play()
                         St.st_num = Menu.mouse_on_pagetxt_SerectSt
                         St.start_text = St.st_num
                         Ifm_txt_stage_num = font1.render("ステージ："+str(St.st_num), True, (0, 0, 0))
@@ -661,6 +687,7 @@ def main():
                                                  St.stage_element[St.st_num-1][10])
                         pygame.time.set_timer(START_TEXT_RESET, 2000)
                 if Menu.mouse_on_back == 1:
+                    cancel_sound.play()
                     Menu.page_num = 0
             if event.type == START_TEXT_RESET:
                 St.start_text = 0
@@ -746,6 +773,8 @@ def main():
             St.next = 0
         if St.next == 1:
             if St.coin_count == St.coin_num:
+                if P1.size['x'] == St.stage_element[St.st_num-1][0] and P1.size['y'] == St.stage_element[St.st_num-1][1]:
+                    goal_sound.play()
                 P1.no_control = 1
                 GoalAndNextStage(St.st_num + 1 if St.st_num <= 22 else 1)
 
