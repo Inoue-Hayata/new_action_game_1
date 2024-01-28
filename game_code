@@ -199,12 +199,27 @@ class stage():
     def coin_judgement(self):
         for i in range(self.coin_num):
             if self.coin_pos[i] != None:
-                if P1.pos['x'] <= self.coin_pos[i][0] <= P1.pos['x']+P1.size['x'] or P1.pos['x'] <= self.coin_pos[i][0]+self.coin_size[0] <= P1.pos['x']+P1.size['x']:
+                coin_get = 0
+                if P1.pos['x'] <= self.coin_pos[i][0]+self.coin_size[0]/2 <= P1.pos['x']+P1.size['x']:
                     if P1.pos['y'] <= self.coin_pos[i][1] <= P1.pos['y']+P1.size['y'] or P1.pos['y'] <= self.coin_pos[i][1]+self.coin_size[1] <= P1.pos['y']+P1.size['y']:
-                        self.coin_pos[i] = None
-                        self.coin_count += 1
-                        global Ifm_txt_coin_counter
-                        Ifm_txt_coin_counter = font1.render("コイン獲得枚数："+str(St.coin_count)+"/"+str(St.coin_num), True, (0, 0, 0))
+                        coin_get = 1
+                elif P1.pos['y'] <= self.coin_pos[i][1]+self.coin_size[1]/2 <= P1.pos['y']+P1.size['y']:
+                    if P1.pos['x'] <= self.coin_pos[i][0] <= P1.pos['x']+P1.size['x'] or P1.pos['x'] <= self.coin_pos[i][0]+self.coin_size[0] <= P1.pos['x']+P1.size['x']:
+                        coin_get = 1
+                else:
+                    if (((self.coin_pos[i][0]+self.coin_size[0]/2)-P1.pos['x'])**2 + ((self.coin_pos[i][1]+8)-P1.pos['y'])**2)**0.5 + (((self.coin_pos[i][0]+self.coin_size[0]/2)-P1.pos['x'])**2 + ((self.coin_pos[i][1]+32)-P1.pos['y'])**2)**0.5 <= self.coin_size[1]: #プレイヤー左上
+                        coin_get = 1
+                    elif (((self.coin_pos[i][0]+self.coin_size[0]/2)-(P1.pos['x']+P1.size['x']))**2 + ((self.coin_pos[i][1]+8)-P1.pos['y'])**2)**0.5 + (((self.coin_pos[i][0]+self.coin_size[0]/2)-(P1.pos['x']+P1.size['x']))**2 + ((self.coin_pos[i][1]+32)-P1.pos['y'])**2)**0.5 <= self.coin_size[1]:   #プレイヤー右上
+                        coin_get = 1
+                    elif (((self.coin_pos[i][0]+self.coin_size[0]/2)-P1.pos['x'])**2 + ((self.coin_pos[i][1]+8)-(P1.pos['y']+P1.size['y']))**2)**0.5 + (((self.coin_pos[i][0]+self.coin_size[0]/2)-P1.pos['x'])**2 + ((self.coin_pos[i][1]+32)-(P1.pos['y']+P1.size['y']))**2)**0.5 <= self.coin_size[1]:   #プレイヤー左下
+                        coin_get = 1
+                    elif (((self.coin_pos[i][0]+self.coin_size[0]/2)-(P1.pos['x']+P1.size['x']))**2 + ((self.coin_pos[i][1]+8)-(P1.pos['y']+P1.size['y']))**2)**0.5 + (((self.coin_pos[i][0]+self.coin_size[0]/2)-(P1.pos['x']+P1.size['x']))**2 + ((self.coin_pos[i][1]+32)-(P1.pos['y']+P1.size['y']))**2)**0.5 <= self.coin_size[1]: #プレイヤー右下
+                        coin_get = 1
+                if coin_get == 1:
+                    self.coin_pos[i] = None
+                    self.coin_count += 1
+                    global Ifm_txt_coin_counter
+                    Ifm_txt_coin_counter = font1.render("コイン獲得枚数："+str(St.coin_count)+"/"+str(St.coin_num), True, (0, 0, 0))
     def stage_element_process(self, P1SizeX, P1SizeY, P1JumpPower, IfmLives, St_b_enemy, StGoalPosX, StGoalPosY, StGoalSizeX, StGoalSizeY, StGoalGap, StCoinNum):
         self.ground_list = []
         for i in range(20):
@@ -368,7 +383,7 @@ class menu():
         screen.blit(menu_txt_txtX, (370, 112.5))
         screen.blit(menu_txt_X_1, (662.5, 112.5))
         pygame.draw.circle(screen, (0,0,0), (675, 125), 15, 1)
-        if (abs(pygame.mouse.get_pos()[0]-675)**2 + abs(pygame.mouse.get_pos()[1]-125)**2)**0.5 <= 15:
+        if ((pygame.mouse.get_pos()[0]-675)**2 + (pygame.mouse.get_pos()[1]-125)**2)**0.5 <= 15:
             self.mouse_on_cross = 1
             pygame.draw.circle(screen, (100,100,100), (675, 125), 15)
             screen.blit(menu_txt_X_2, (662.5, 112.5))
@@ -465,6 +480,8 @@ def main():
     open_menu_sound = pygame.mixer.Sound('open_menu.mp3')
     global cancel_sound
     cancel_sound = pygame.mixer.Sound('cancel.mp3')
+    global jump_sound
+    jump_sound = pygame.mixer.Sound('jump.mp3')
 
     pygame.time.set_timer(START_TEXT_RESET, 1500)
     while True:
@@ -714,6 +731,7 @@ def main():
                                 P1.move(-8,0)
                     if P1.pos['y'] >= 400+St.ground_list[int(P1.pos['x']//40)]*40-40 or P1.pos['y'] >= 400+St.ground_list[int((P1.pos['x']+P1.size['x']-1)//40)]*40-40:
                         if key[pygame.K_UP] == 1:
+                            jump_sound.play()
                             P1.move(0,P1.jump_power)
 
 
@@ -761,13 +779,13 @@ def main():
         if P1.pos['y'] <= St.goal_pos['y']+St.goal_size['y']/2 <= P1.pos['y']+P1.size['y']:
             if St.goal_pos['x'] < P1.pos['x'] < St.goal_pos['x']+St.goal_size['x']:
                 St.next = 1
-        if (abs((St.goal_pos['x']+St.goal_size['x']/2)-(P1.pos['x']))**2+abs((St.goal_pos['y']+5.5)-(P1.pos['y']))**2)**0.5 + (abs((St.goal_pos['x']+St.goal_size['x']/2)-(P1.pos['x']))**2+abs((St.goal_pos['y']+74.5)-(P1.pos['y']))**2)**0.5 < 79:
+        if (((St.goal_pos['x']+St.goal_size['x']/2)-(P1.pos['x']))**2+((St.goal_pos['y']+5.5)-(P1.pos['y']))**2)**0.5 + (((St.goal_pos['x']+St.goal_size['x']/2)-(P1.pos['x']))**2+((St.goal_pos['y']+74.5)-(P1.pos['y']))**2)**0.5 < 79:
             St.next = 1
-        elif (abs((St.goal_pos['x']+St.goal_size['x']/2)-(P1.pos['x']+P1.size['x']))**2+abs((St.goal_pos['y']+5.5)-(P1.pos['y']))**2)**0.5 + (abs((St.goal_pos['x']+St.goal_size['x']/2)-(P1.pos['x']+P1.size['x']))**2+abs((St.goal_pos['y']+74.5)-(P1.pos['y']))**2)**0.5 < 79:
+        elif (((St.goal_pos['x']+St.goal_size['x']/2)-(P1.pos['x']+P1.size['x']))**2+((St.goal_pos['y']+5.5)-(P1.pos['y']))**2)**0.5 + (((St.goal_pos['x']+St.goal_size['x']/2)-(P1.pos['x']+P1.size['x']))**2+((St.goal_pos['y']+74.5)-(P1.pos['y']))**2)**0.5 < 79:
             St.next = 1
-        elif (abs((St.goal_pos['x']+St.goal_size['x']/2)-(P1.pos['x']))**2+abs((St.goal_pos['y']+5.5)-(P1.pos['y']+P1.size['y']))**2)**0.5 + (abs((St.goal_pos['x']+St.goal_size['x']/2)-(P1.pos['x']))**2+abs((St.goal_pos['y']+74.5)-(P1.pos['y']+P1.size['y']))**2)**0.5 < 79:
+        elif (((St.goal_pos['x']+St.goal_size['x']/2)-(P1.pos['x']))**2+((St.goal_pos['y']+5.5)-(P1.pos['y']+P1.size['y']))**2)**0.5 + (((St.goal_pos['x']+St.goal_size['x']/2)-(P1.pos['x']))**2+((St.goal_pos['y']+74.5)-(P1.pos['y']+P1.size['y']))**2)**0.5 < 79:
             St.next = 1
-        elif (abs((St.goal_pos['x']+St.goal_size['x']/2)-(P1.pos['x']+P1.size['x']))**2+abs((St.goal_pos['y']+5.5)-(P1.pos['y']+P1.size['y']))**2)**0.5 + (abs((St.goal_pos['x']+St.goal_size['x']/2)-(P1.pos['x']+P1.size['x']))**2+abs((St.goal_pos['y']+74.5)-(P1.pos['y']+P1.size['y']))**2)**0.5 < 79:
+        elif (((St.goal_pos['x']+St.goal_size['x']/2)-(P1.pos['x']+P1.size['x']))**2+((St.goal_pos['y']+5.5)-(P1.pos['y']+P1.size['y']))**2)**0.5 + (((St.goal_pos['x']+St.goal_size['x']/2)-(P1.pos['x']+P1.size['x']))**2+((St.goal_pos['y']+74.5)-(P1.pos['y']+P1.size['y']))**2)**0.5 < 79:
             St.next = 1
         else:
             St.next = 0
