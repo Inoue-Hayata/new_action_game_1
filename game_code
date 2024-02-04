@@ -56,20 +56,21 @@ class Player():
                 self.pos['x'] = 800-self.size['x']
 
             if self.zone == 0 or self.zone == 3:
-                self.vel['y'] += vel_y + 0.08
-                self.pos['y'] += self.vel['y']
-                if P1.pos['y'] < 120+St.ground_list[int(P1.pos['x']//40)]*40:   #左上
-                    P1.vel['y'] = 0
-                    P1.pos['y'] = 120+St.ground_list[int(P1.pos['x']//40)]*40
-                if P1.pos['y'] < 120+St.ground_list[int((P1.pos['x']+P1.size['x']-1)//40)]*40:  #右上
-                    P1.vel['y'] = 0
-                    P1.pos['y'] = 120+St.ground_list[int((P1.pos['x']+P1.size['x']-1)//40)]*40
-                if P1.pos['y']+P1.size['y'] > 400+St.ground_list[int(P1.pos['x']//40)]*40:    #左下
-                    P1.vel['y'] = 0
-                    P1.pos['y'] = 400+St.ground_list[int(P1.pos['x']//40)]*40-40
-                if P1.pos['y']+P1.size['y'] > 400+St.ground_list[int((P1.pos['x']+P1.size['x']-1)//40)]*40:   #右下
-                    P1.vel['y'] = 0
-                    P1.pos['y'] = 400+St.ground_list[int((P1.pos['x']+P1.size['x']-1)//40)]*40-40
+                if St.next == 0:
+                    self.vel['y'] += vel_y + 0.08
+                    self.pos['y'] += self.vel['y']
+                    if P1.pos['y'] < 120+St.ground_list[int(P1.pos['x']//40)]*40:   #左上
+                        P1.vel['y'] = 0
+                        P1.pos['y'] = 120+St.ground_list[int(P1.pos['x']//40)]*40
+                    if P1.pos['y'] < 120+St.ground_list[int((P1.pos['x']+P1.size['x']-1)//40)]*40:  #右上
+                        P1.vel['y'] = 0
+                        P1.pos['y'] = 120+St.ground_list[int((P1.pos['x']+P1.size['x']-1)//40)]*40
+                    if P1.pos['y']+P1.size['y'] > 400+St.ground_list[int(P1.pos['x']//40)]*40:    #左下
+                        P1.vel['y'] = 0
+                        P1.pos['y'] = 400+St.ground_list[int(P1.pos['x']//40)]*40-P1.size['y']
+                    if P1.pos['y']+P1.size['y'] > 400+St.ground_list[int((P1.pos['x']+P1.size['x']-1)//40)]*40:   #右下
+                        P1.vel['y'] = 0
+                        P1.pos['y'] = 400+St.ground_list[int((P1.pos['x']+P1.size['x']-1)//40)]*40-P1.size['y']
 
 class stage():
     def __init__(self):
@@ -508,7 +509,7 @@ def main():
         if Menu.show_YN == 0:
             P1.move(0,0)
         if P1.no_control == 1:
-            if P1.pos['y'] == 360:
+            if P1.pos['y'] == 400-P1.size['y']:
                 if P1.pos['x'] == 0 or P1.zone == 3:
                     P1.no_control = 0
 
@@ -747,8 +748,8 @@ def main():
                     if key[pygame.K_RIGHT] == 1:
                         if key[pygame.K_LEFT] == 0:
                             if P1.pos['x'] <= 720:
-                                if P1.pos['y'] >= 120+St.ground_list[int((P1.pos['x']+40)//40)]*40:
-                                    if P1.pos['y']+40-1 <= 400+St.ground_list[int((P1.pos['x']+40)//40)]*40:
+                                if P1.pos['y'] >= 120+St.ground_list[int((P1.pos['x']+P1.size['x'])//40)]*40:
+                                    if P1.pos['y']+P1.size['y']-1 <= 400+St.ground_list[int((P1.pos['x']+P1.size['x'])//40)]*40:
                                         P1.move(8,0)
                             else:
                                 P1.move(8,0)
@@ -756,11 +757,11 @@ def main():
                         if key[pygame.K_RIGHT] == 0:
                             if P1.pos['x'] >= 40:
                                 if P1.pos['y'] >= 120+St.ground_list[int((P1.pos['x']-8)//40)]*40:
-                                    if P1.pos['y']+40-1 <= 400+St.ground_list[int((P1.pos['x']-8)//40)]*40:
+                                    if P1.pos['y']+P1.size['y']-1 <= 400+St.ground_list[int((P1.pos['x']-8)//40)]*40:
                                         P1.move(-8,0)
                             else:
                                 P1.move(-8,0)
-                    if P1.pos['y'] >= 400+St.ground_list[int(P1.pos['x']//40)]*40-40 or P1.pos['y'] >= 400+St.ground_list[int((P1.pos['x']+P1.size['x']-1)//40)]*40-40:
+                    if P1.pos['y'] >= 400+St.ground_list[int(P1.pos['x']//40)]*40-P1.size['y'] or P1.pos['y'] >= 400+St.ground_list[int((P1.pos['x']+P1.size['x']-1)//40)]*40-P1.size['y']:
                         if key[pygame.K_UP] == 1:
                             jump_sound.play()
                             P1.move(0,P1.jump_power)
