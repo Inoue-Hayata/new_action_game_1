@@ -128,6 +128,9 @@ class stage():
         for i in range(self.coin_num):
             if self.coin_pos[i] != None:
                 screen.blit(coin_png, (self.coin_pos[i][0], self.coin_pos[i][1]))   #コイン
+        if P1.zone == 3:
+            pygame.draw.rect(screen, (255,255,255), (0, 0, 800, 520))
+            screen.blit(St_AllClear_txt, (100, 200))
     def show_2(self, screen):   #最前面
         if St.start_text != 0:
             St_start_txt_1 = font3.render("ステージ："+str(St.st_num), True, (0, 0, 0))
@@ -135,9 +138,6 @@ class stage():
         if P1.zone == 2:
             pygame.draw.rect(screen, (255,255,255), (0, 0, 800, 520))   #game over画面の背景
             screen.blit(St_GameOver_txt, (150, 210))    #game over の文字
-        if P1.zone == 3:
-            pygame.draw.rect(screen, (255,255,255), (0, 0, 800, 520))
-            screen.blit(St_AllClear_txt, (100, 210))
 
     def b_enemy_move(self):
         for i in range(1, len(format(self.block_enemy, 'b'))+1):
@@ -195,6 +195,8 @@ class stage():
     def block_enemy_judgement(self,b_enemy_num):
         if self.b_enemy1_pos[b_enemy_num-1][0] <= P1.pos['x'] < self.b_enemy1_pos[b_enemy_num-1][0]+self.b_enemy1_size[b_enemy_num-1] or self.b_enemy1_pos[b_enemy_num-1][0] < P1.pos['x']+P1.size['x'] <= self.b_enemy1_pos[b_enemy_num-1][0]+self.b_enemy1_size[b_enemy_num-1]:
             if self.b_enemy1_pos[b_enemy_num-1][1] <= P1.pos['y'] < self.b_enemy1_pos[b_enemy_num-1][1]+self.b_enemy1_size[b_enemy_num-1] or self.b_enemy1_pos[b_enemy_num-1][1] < P1.pos['y']+P1.size['y'] <= self.b_enemy1_pos[b_enemy_num-1][1]+self.b_enemy1_size[b_enemy_num-1]:
+                if P1.flash == 0 and P1.no_control == 0:
+                    impact_sound.play()
                 P1.vel['x'] = 0
                 P1.vel['y'] = 0
                 if P1.no_control == 0:
@@ -220,6 +222,7 @@ class stage():
                     elif (((self.coin_pos[i][0]+self.coin_size[0]/2)-(P1.pos['x']+P1.size['x']))**2 + ((self.coin_pos[i][1]+8)-(P1.pos['y']+P1.size['y']))**2)**0.5 + (((self.coin_pos[i][0]+self.coin_size[0]/2)-(P1.pos['x']+P1.size['x']))**2 + ((self.coin_pos[i][1]+32)-(P1.pos['y']+P1.size['y']))**2)**0.5 <= self.coin_size[1]: #プレイヤー右下
                         coin_get = 1
                 if coin_get == 1:
+                    coin_sound.play()
                     self.coin_pos[i] = None
                     self.coin_count += 1
                     global Ifm_txt_coin_counter
@@ -438,7 +441,7 @@ def main():
     global menu_txt_X_2
     menu_txt_X_2 = font2.render("×", True, (255, 255, 255))
     global menu_txt_txtX
-    menu_txt_txtX = font2.render("メニューを閉じる：xキー", True, (0, 0, 0))
+    menu_txt_txtX = font2.render("メニューを閉じる：mキー", True, (0, 0, 0))
 
     global menu_maintxt_HowToPlay
     menu_maintxt_HowToPlay = font4.render("ゲームの遊び方・ルール：1キー", True, (0, 0, 0))
@@ -476,6 +479,8 @@ def main():
     global coin_png
     coin_png = pygame.transform.rotozoom(pygame.image.load("coin.png"),0,40/1000)
 
+    global BGM
+    BGM = pygame.mixer.Sound('魔王魂 ループ  8bit11.mp3')
     global goal_sound
     goal_sound = pygame.mixer.Sound('goal.mp3')
     global decision_sound
@@ -488,8 +493,13 @@ def main():
     cancel_sound = pygame.mixer.Sound('cancel.mp3')
     global jump_sound
     jump_sound = pygame.mixer.Sound('jump.mp3')
+    global impact_sound
+    impact_sound = pygame.mixer.Sound('Arcade-Action01-6(Impact).mp3')
+    global coin_sound
+    coin_sound = pygame.mixer.Sound('coin.mp3')
 
     pygame.time.set_timer(START_TEXT_RESET, 1500)
+    BGM.play(-1)
     while True:
         screen.fill((255,255,255))
         St.St_main(screen)
@@ -533,10 +543,15 @@ def main():
                 sys.exit()
             if event.type == KEYDOWN:
                 if St.next == 0:
-                    if Menu.show_YN == 1:       #メニュー内
-                        if event.key == K_x:
+                    if event.key == K_m:
+                        if Menu.show_YN == 1:
                             cancel_sound.play()
                             Menu.show_YN = 0
+                        elif Menu.show_YN == 0:
+                            open_menu_sound.play()
+                            Menu.page_num = 0
+                            Menu.show_YN = 1
+                    if Menu.show_YN == 1:       #メニュー内
                         if Menu.page_num == 0:
                             if event.key == K_1:
                                 serect_sound.play()
@@ -590,10 +605,12 @@ def main():
                         if P1.zone != 3:
                             if event.key == K_t:
                                 if Ifm.lives >= 1:
+                                    impact_sound.play()
                                     P1.zone = 0
                                     P1.flash_count = 0
                                     P1.flash = 3
                             if event.key == K_r:
+                                decision_sound.play()
                                 P1.zone = 0
                                 P1.flash = 0
                                 P1.pos['x'] = 0
@@ -609,20 +626,18 @@ def main():
                                                         St.stage_element[St.st_num-1][8], St.stage_element[St.st_num-1][9],
                                                         St.stage_element[St.st_num-1][10])
                                 pygame.time.set_timer(START_TEXT_RESET, 2000)
-                            if event.key == K_m:    #メニューを開く
-                                open_menu_sound.play()
-                                Menu.page_num = 0
-                                Menu.show_YN = 1
                         if event.key == K_0:
                             if P1.zone == 0:
                                 if P1.flash == 0:
                                     if P1.no_control == 0:
+                                        serect_sound.play()
                                         P1.flash = 2
                                         P1.zone = 1
                                         P1.pos['x'] = 0
                                         P1.pos['y'] = 240
                         if P1.zone == 1:
                             if event.key == K_9:
+                                serect_sound.play()
                                 Ifm.lives -= 1
                                 Ifm_txt_lives = font1.render("残りライフ："+str(Ifm.lives), True, (0, 0, 0))
                                 P1.flash = 0
@@ -636,40 +651,47 @@ def main():
                                     P1.pos['y'] = 340 + St.ground_list[0]*40
                                 P1.no_control = 1
                             if event.key == K_RIGHT:
+                                serect_sound.play()
                                 P1.move(40,0)
                             if event.key == K_LEFT:
+                                serect_sound.play()
                                 P1.move(-40,0)
 
                             if event.key == K_UP:
                                 if P1.pos['x'] != 0 or P1.pos['x'] == 0 and St.ground_list[0] > 0:
+                                    serect_sound.play()
                                     St.ground_list[int(P1.pos['x']/40)] -= 1
                             if event.key == K_DOWN:
                                 if P1.pos['x'] != 0 or P1.pos['x'] == 0 and St.ground_list[0] < 9:
+                                    serect_sound.play()
                                     St.ground_list[int(P1.pos['x']/40)] += 1
             if event.type == MOUSEBUTTONDOWN:
                 if St.next == 0:
-                    if Ifm.mouse_on_txt_killME == 1:
-                        if Ifm.lives >= 1:
+                    if P1.zone != 3:
+                        if Ifm.mouse_on_txt_killME == 1:
+                            if Ifm.lives >= 1:
+                                impact_sound.play()
+                                P1.zone = 0
+                                P1.flash_count = 0
+                                P1.flash = 3
+                        if Ifm.mouse_on_txt_restart == 1:
+                            decision_sound.play()
                             P1.zone = 0
-                            P1.flash_count = 0
-                            P1.flash = 3
-                    if Ifm.mouse_on_txt_restart == 1:
-                        P1.zone = 0
-                        P1.flash = 0
-                        P1.zone = 0
-                        P1.pos['x'] = 0
-                        P1.pos['y'] = 340
-                        P1.vel['x'] = 0
-                        P1.vel['y'] = 0
-                        P1.no_control = 1
-                        St.start_text = St.st_num
-                        St.stage_element_process(St.stage_element[St.st_num-1][0], St.stage_element[St.st_num-1][1], 
-                                                St.stage_element[St.st_num-1][2], St.stage_element[St.st_num-1][3],
-                                                St.stage_element[St.st_num-1][4], St.stage_element[St.st_num-1][5],
-                                                St.stage_element[St.st_num-1][6], St.stage_element[St.st_num-1][7],
-                                                St.stage_element[St.st_num-1][8], St.stage_element[St.st_num-1][9],
-                                                St.stage_element[St.st_num-1][10])
-                        pygame.time.set_timer(START_TEXT_RESET, 2000)
+                            P1.flash = 0
+                            P1.zone = 0
+                            P1.pos['x'] = 0
+                            P1.pos['y'] = 340
+                            P1.vel['x'] = 0
+                            P1.vel['y'] = 0
+                            P1.no_control = 1
+                            St.start_text = St.st_num
+                            St.stage_element_process(St.stage_element[St.st_num-1][0], St.stage_element[St.st_num-1][1], 
+                                                    St.stage_element[St.st_num-1][2], St.stage_element[St.st_num-1][3],
+                                                    St.stage_element[St.st_num-1][4], St.stage_element[St.st_num-1][5],
+                                                    St.stage_element[St.st_num-1][6], St.stage_element[St.st_num-1][7],
+                                                    St.stage_element[St.st_num-1][8], St.stage_element[St.st_num-1][9],
+                                                    St.stage_element[St.st_num-1][10])
+                            pygame.time.set_timer(START_TEXT_RESET, 2000)
                     if Ifm.mouse_on_txt_menu == 1:
                         open_menu_sound.play()
                         Menu.page_num = 0
