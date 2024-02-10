@@ -59,6 +59,7 @@ class Player():
                 if St.next == 0:
                     self.vel['y'] += vel_y + 0.08
                     self.pos['y'] += self.vel['y']
+                    #天井・床の判定
                     if P1.pos['y'] < 120+St.ground_list[int(P1.pos['x']//40)]*40:   #左上
                         P1.vel['y'] = 0
                         P1.pos['y'] = 120+St.ground_list[int(P1.pos['x']//40)]*40
@@ -747,18 +748,24 @@ def main():
                 if P1.no_control == 0:
                     if key[pygame.K_RIGHT] == 1:
                         if key[pygame.K_LEFT] == 0:
-                            if P1.pos['x'] <= 720:
+                            if P1.pos['x'] <= 800-(P1.size['x']//40+1)*40:
                                 if P1.pos['y'] >= 120+St.ground_list[int((P1.pos['x']+P1.size['x'])//40)]*40:
                                     if P1.pos['y']+P1.size['y']-1 <= 400+St.ground_list[int((P1.pos['x']+P1.size['x'])//40)]*40:
-                                        P1.move(8,0)
+                                        if P1.pos['y'] <= 120+St.ground_list[int((P1.pos['x']+P1.size['x']+8)//40)]*40 or P1.pos['y']+P1.size['y']-1 >= 400+St.ground_list[int((P1.pos['x']+P1.size['x']+8)//40)]*40:
+                                            P1.move(40-(P1.pos['x']+P1.size['x'])%40,0)
+                                        else:
+                                            P1.move(8,0)
                             else:
                                 P1.move(8,0)
                     if key[pygame.K_LEFT] == 1:
                         if key[pygame.K_RIGHT] == 0:
-                            if P1.pos['x'] >= 40:
-                                if P1.pos['y'] >= 120+St.ground_list[int((P1.pos['x']-8)//40)]*40:
-                                    if P1.pos['y']+P1.size['y']-1 <= 400+St.ground_list[int((P1.pos['x']-8)//40)]*40:
-                                        P1.move(-8,0)
+                            if P1.pos['x'] >= P1.size['x']:
+                                if P1.pos['y'] >= 120+St.ground_list[int((P1.pos['x'])//40)]*40:
+                                    if P1.pos['y']+P1.size['y']-1 <= 400+St.ground_list[int((P1.pos['x'])//40)]*40:
+                                        if P1.pos['y'] <= 120+St.ground_list[int((P1.pos['x']-8)//40)]*40 or P1.pos['y']+P1.size['y']-1 >= 400+St.ground_list[int((P1.pos['x']-8)//40)]*40:
+                                            P1.move(P1.pos['x']%40*-1,0)
+                                        else:
+                                            P1.move(-8,0)
                             else:
                                 P1.move(-8,0)
                     if P1.pos['y'] >= 400+St.ground_list[int(P1.pos['x']//40)]*40-P1.size['y'] or P1.pos['y'] >= 400+St.ground_list[int((P1.pos['x']+P1.size['x']-1)//40)]*40-P1.size['y']:
