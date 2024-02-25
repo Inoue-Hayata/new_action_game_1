@@ -322,6 +322,8 @@ class menu():
         self.mouse_on_back = 0
         self.mouse_on_pagetxt_VolumeSetting_line = 0
         self.VolumeSetting = 0  #音量変更中
+        self.BGM_volume = 0.5
+        self.SoundEffect_volume = 0.5
         self.SSP_pos_list = [[175,150],[295,150],[415,150],[535,150],[655,150],
                              [235,210],[355,210],[475,210],[595,210],
                              [190,270],[310,270],[430,270],[550,270],[670,270],
@@ -406,11 +408,12 @@ class menu():
 
             screen.blit(menu_pagetxt_VolumeSetting[1], (180, 270))   #"BGM", 35
             pygame.draw.line(screen, (0, 0, 0), (350, 287.5), (600, 287.5), 3)
-            pygame.draw.circle(screen, (0, 0, 0), (350+250*BGM_volume, 287.5), 10, 3)
+            pygame.draw.circle(screen, (0, 0, 0), (350+250*self.BGM_volume, 287.5), 10, 3)
+            screen.blit(menu_pagetxt_VolumeSetting[3], (475-len(str(int(self.BGM_volume*100)))*6.25, 260))
 
             screen.blit(menu_pagetxt_VolumeSetting[2], (180, 320))   #"効果音", 35
             pygame.draw.line(screen, (0, 0, 0), (350, 337.5), (600, 337.5), 3)
-            pygame.draw.circle(screen, (0, 0, 0), (350+250*SoundEffect_volume, 337.5), 10, 3)
+            pygame.draw.circle(screen, (0, 0, 0), (350+250*self.SoundEffect_volume, 337.5), 10, 3)
 
             if 350 <= pygame.mouse.get_pos()[0] <= 600 and 277.5 <= pygame.mouse.get_pos()[1] <= 297.5:
                 self.mouse_on_pagetxt_VolumeSetting_line = 1
@@ -489,7 +492,11 @@ def main():
     for i in Menu.pagetxt_serect_stage:
         menu_pagetxt_SerectSt.append(font5.render(i, True, (0, 0, 0)))
     global menu_pagetxt_VolumeSetting
-    menu_pagetxt_VolumeSetting = [font1.render("音量設定", True, (0, 0, 0)), font4.render("BGM", True, (0, 0, 0)), font4.render("効果音", True, (0, 0, 0))]
+    menu_pagetxt_VolumeSetting = [font1.render("音量設定", True, (0, 0, 0)), 
+                                  font4.render("BGM", True, (0, 0, 0)), 
+                                  font4.render("効果音", True, (0, 0, 0)), 
+                                  font2.render(str(int(Menu.BGM_volume*100)), True, (0, 0, 0)), 
+                                  font2.render(str(Menu.SoundEffect_volume*100), True, (0, 0, 0))]
     global menu_pagetxt_back
     menu_pagetxt_back = font2.render("<<戻る：bキー", True, (0, 0, 0))
     global menu_pagetxt_SerectSt_explain
@@ -532,19 +539,15 @@ def main():
     global coin_sound
     coin_sound = pygame.mixer.Sound('coin.mp3')
 
-    global BGM_volume
-    BGM_volume = 0.5
-    global SoundEffect_volume
-    SoundEffect_volume = 0.5
-    BGM.set_volume(BGM_volume)
-    goal_sound.set_volume(SoundEffect_volume)
-    decision_sound.set_volume(SoundEffect_volume)
-    serect_sound.set_volume(SoundEffect_volume)
-    open_menu_sound.set_volume(SoundEffect_volume)
-    cancel_sound.set_volume(SoundEffect_volume)
-    jump_sound.set_volume(SoundEffect_volume)
-    impact_sound.set_volume(SoundEffect_volume)
-    coin_sound.set_volume(SoundEffect_volume)
+    BGM.set_volume(Menu.BGM_volume)
+    goal_sound.set_volume(Menu.SoundEffect_volume)
+    decision_sound.set_volume(Menu.SoundEffect_volume)
+    serect_sound.set_volume(Menu.SoundEffect_volume)
+    open_menu_sound.set_volume(Menu.SoundEffect_volume)
+    cancel_sound.set_volume(Menu.SoundEffect_volume)
+    jump_sound.set_volume(Menu.SoundEffect_volume)
+    impact_sound.set_volume(Menu.SoundEffect_volume)
+    coin_sound.set_volume(Menu.SoundEffect_volume)
 
     pygame.time.set_timer(START_TEXT_RESET, 1500)
     BGM.play(-1)
@@ -806,18 +809,19 @@ def main():
                 St.start_text = 0
         
         if Menu.VolumeSetting == 1:
-            BGM_volume = min(round((pygame.mouse.get_pos()[0]-350)/250, 3), 1) if pygame.mouse.get_pos()[0] >= 350 else 0
-            BGM.set_volume(BGM_volume)
+            Menu.BGM_volume = int((min(round((pygame.mouse.get_pos()[0]-350)/250*100)/100, 1) if pygame.mouse.get_pos()[0] >= 350 else 0)*100)/100
+            BGM.set_volume(Menu.BGM_volume)
+            menu_pagetxt_VolumeSetting[3] = font2.render(str(int(Menu.BGM_volume*100)), True, (0, 0, 0))
         elif Menu.VolumeSetting == 2:
-            SoundEffect_volume = min(round((pygame.mouse.get_pos()[0]-350)/250, 3), 1) if pygame.mouse.get_pos()[0] >= 350 else 0
-            goal_sound.set_volume(SoundEffect_volume)
-            decision_sound.set_volume(SoundEffect_volume)
-            serect_sound.set_volume(SoundEffect_volume)
-            open_menu_sound.set_volume(SoundEffect_volume)
-            cancel_sound.set_volume(SoundEffect_volume)
-            jump_sound.set_volume(SoundEffect_volume)
-            impact_sound.set_volume(SoundEffect_volume)
-            coin_sound.set_volume(SoundEffect_volume)
+            Menu.SoundEffect_volume = min(round((pygame.mouse.get_pos()[0]-350)/250, 3), 1) if pygame.mouse.get_pos()[0] >= 350 else 0
+            goal_sound.set_volume(Menu.SoundEffect_volume)
+            decision_sound.set_volume(Menu.SoundEffect_volume)
+            serect_sound.set_volume(Menu.SoundEffect_volume)
+            open_menu_sound.set_volume(Menu.SoundEffect_volume)
+            cancel_sound.set_volume(Menu.SoundEffect_volume)
+            jump_sound.set_volume(Menu.SoundEffect_volume)
+            impact_sound.set_volume(Menu.SoundEffect_volume)
+            coin_sound.set_volume(Menu.SoundEffect_volume)
 
         key = pygame.key.get_pressed()
         if Menu.show_YN == 0:
