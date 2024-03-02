@@ -317,11 +317,14 @@ class menu():
         self.mouse_on_txt_X = 0
         self.mouse_on_maintxt_HowToPlay = 0
         self.mouse_on_maintxt_SerectSt = 0
-        self.mouse_on_maintxt_VolumeSetting = 0
+        self.mouse_on_maintxt_VolSetting = 0
         self.mouse_on_pagetxt_SerectSt = 0
         self.mouse_on_back = 0
-        self.mouse_on_pagetxt_VolumeSetting_line = 0
-        self.VolumeSetting = 0  #音量変更中
+        self.mouse_on_pagetxt_VolSetting_line = 0
+        self.mouse_on_pagetxt_VolSetting_PlusMinus = 0  #1BGM＋ 2BGM－ 3効果音＋ 4効果音－
+        self.VolSetting_PM_and_time = [0, 0]    #1BGM＋ 2BGM－ 3効果音＋ 4効果音－, 時間
+        self.VolSetting_square_cursor = 1   #1BGM＋ 2BGM－ 3効果音＋ 4効果音－
+        self.VolSetting = 0  #音量変更中(スライダーで)
         self.BGM_volume = 50
         self.SoundEffect_volume = 50
         self.SSP_pos_list = [[175,150],[295,150],[415,150],[535,150],[655,150],
@@ -353,10 +356,10 @@ class menu():
                 if 190 <= pygame.mouse.get_pos()[1] <= 225:
                     self.mouse_on_maintxt_SerectSt = 1
                     pygame.draw.rect(screen, (0, 0, 0), (110, 190, 367.5, 35), 1)
-            screen.blit(menu_maintxt_VolumeSetting, (110, 230))
+            screen.blit(menu_maintxt_VolSetting, (110, 230))
             if 110 <= pygame.mouse.get_pos()[0] <= 372.5:
                 if 230 <= pygame.mouse.get_pos()[1] <= 265:
-                    self.mouse_on_maintxt_VolumeSetting = 1
+                    self.mouse_on_maintxt_VolSetting = 1
                     pygame.draw.rect(screen, (0, 0, 0), (110, 230, 262.5, 35), 1)
         if self.page_num != 0:
             screen.blit(menu_pagetxt_back, (110, 112.5))
@@ -404,27 +407,52 @@ class menu():
                         self.mouse_on_pagetxt_SerectSt = i+19
                         pygame.draw.rect(screen, (0, 0, 0), (self.pagetxt_serectSt_posX3[i][0], 390, 60, 60), 1)
         if self.page_num == 3:  #音量設定
-            screen.blit(menu_pagetxt_VolumeSetting[0], (320, 200))   #"音量設定", 40
+            screen.blit(menu_pagetxt_VolSetting[0], (320, 200))   #"音量設定", 40
 
-            screen.blit(menu_pagetxt_VolumeSetting[1], (180, 270))   #"BGM", 35
+            screen.blit(menu_pagetxt_VolSetting[1], (180, 270))   #"BGM", 35
             pygame.draw.line(screen, (0, 0, 0), (350, 287.5), (600, 287.5), 3)
             BGM_Volume_Circle = pygame.draw.circle(screen, (0, 0, 0), (350+250*self.BGM_volume/100, 287.5), 10, 3)
-            screen.blit(menu_pagetxt_VolumeSetting[3], (475-len(str(self.BGM_volume))*6.25, 250))
+            screen.blit(menu_pagetxt_VolSetting[3], (475-len(str(self.BGM_volume))*6.25, 250))
+            screen.blit(menu_pagetxt_VolSetting[5], (305, 275))  #"－", 25
+            screen.blit(menu_pagetxt_VolSetting[6], (620, 275))  #"＋", 25
 
-            screen.blit(menu_pagetxt_VolumeSetting[2], (180, 320))   #"効果音", 35
+            screen.blit(menu_pagetxt_VolSetting[2], (180, 320))   #"効果音", 35
             pygame.draw.line(screen, (0, 0, 0), (350, 337.5), (600, 337.5), 3)
             SoundEffect_Volume_Circle = pygame.draw.circle(screen, (0, 0, 0), (350+250*self.SoundEffect_volume/100, 337.5), 10, 3)
-            screen.blit(menu_pagetxt_VolumeSetting[4], (475-len(str(self.SoundEffect_volume))*6.25, 300))
+            screen.blit(menu_pagetxt_VolSetting[4], (475-len(str(self.SoundEffect_volume))*6.25, 300))
+            screen.blit(menu_pagetxt_VolSetting[5], (305, 325))  #"－", 25
+            screen.blit(menu_pagetxt_VolSetting[6], (620, 325))  #"＋", 25
 
-            if 350 <= pygame.mouse.get_pos()[0] <= 600 and 277.5 <= pygame.mouse.get_pos()[1] <= 297.5 or (abs(pygame.mouse.get_pos()[0]-BGM_Volume_Circle.x)**2+abs(pygame.mouse.get_pos()[1]-BGM_Volume_Circle.y)**2)**0.5 <= 20:
-                self.mouse_on_pagetxt_VolumeSetting_line = 1
-            elif 350 <= pygame.mouse.get_pos()[0] <= 600 and 327.5 <= pygame.mouse.get_pos()[1] <= 347.5 or (abs(pygame.mouse.get_pos()[0]-SoundEffect_Volume_Circle.x)**2+abs(pygame.mouse.get_pos()[1]-SoundEffect_Volume_Circle.y)**2)**0.5 <= 20:
-                self.mouse_on_pagetxt_VolumeSetting_line = 2
-            
-            if self.VolumeSetting == 1:
+            if self.VolSetting_square_cursor == 1:
+                pygame.draw.rect(screen, (0, 0, 0), (305, 275, 25, 25), 1)
+            if self.VolSetting_square_cursor == 2:
+                pygame.draw.rect(screen, (0, 0, 0), (620, 275, 25, 25), 1)
+            if self.VolSetting_square_cursor == 3:
+                pygame.draw.rect(screen, (0, 0, 0), (305, 325, 25, 25), 1)
+            if self.VolSetting_square_cursor == 4:
+                pygame.draw.rect(screen, (0, 0, 0), (620, 325, 25, 25), 1)
+
+            if 350 <= pygame.mouse.get_pos()[0] <= 600 and 277.5 <= pygame.mouse.get_pos()[1] <= 297.5 or (abs(pygame.mouse.get_pos()[0]-(BGM_Volume_Circle.x+10))**2+abs(pygame.mouse.get_pos()[1]-(BGM_Volume_Circle.y+10))**2)**0.5 <= 10:   #BGM_Volume_Circle.x は左上の座標
+                self.mouse_on_pagetxt_VolSetting_line = 1
+            elif 350 <= pygame.mouse.get_pos()[0] <= 600 and 327.5 <= pygame.mouse.get_pos()[1] <= 347.5 or (abs(pygame.mouse.get_pos()[0]-(SoundEffect_Volume_Circle.x+10))**2+abs(pygame.mouse.get_pos()[1]-(SoundEffect_Volume_Circle.y+10))**2)**0.5 <= 10:
+                self.mouse_on_pagetxt_VolSetting_line = 2
+
+            if self.VolSetting == 1:
                 pygame.draw.circle(screen, (100, 100, 100), (350+250*self.BGM_volume/100, 287.5), 10)
-            elif self.VolumeSetting == 2:
+            elif self.VolSetting == 2:
                 pygame.draw.circle(screen, (100, 100, 100), (350+250*self.SoundEffect_volume/100, 337.5), 10)
+
+            if 305 <= pygame.mouse.get_pos()[0] <= 330 and 275 <= pygame.mouse.get_pos()[1] <= 300:
+                self.mouse_on_pagetxt_VolSetting_PlusMinus = 1
+            elif 620 <= pygame.mouse.get_pos()[0] <= 645 and 275 <= pygame.mouse.get_pos()[1] <= 300:
+                self.mouse_on_pagetxt_VolSetting_PlusMinus = 2
+            elif 305 <= pygame.mouse.get_pos()[0] <= 330 and 325 <= pygame.mouse.get_pos()[1] <= 350:
+                self.mouse_on_pagetxt_VolSetting_PlusMinus = 3
+            elif 620 <= pygame.mouse.get_pos()[0] <= 645 and 325 <= pygame.mouse.get_pos()[1] <= 350:
+                self.mouse_on_pagetxt_VolSetting_PlusMinus = 4
+            
+            screen.blit(menu_pagetxt_VolSetting[7], (275, 380))
+            screen.blit(menu_pagetxt_VolSetting[8], (318.75, 410))
 
         screen.blit(menu_txt_txtX, (370, 112.5))
         screen.blit(menu_txt_X_1, (662.5, 112.5))
@@ -486,8 +514,8 @@ def main():
     menu_maintxt_HowToPlay = font4.render("ゲームの遊び方・ルール：1キー", True, (0, 0, 0))
     global menu_maintxt_SerectSt
     menu_maintxt_SerectSt = font4.render("ステージの選択：2キー", True, (0, 0, 0))
-    global menu_maintxt_VolumeSetting
-    menu_maintxt_VolumeSetting = font4.render("音量設定：3キー", True, (0, 0, 0))
+    global menu_maintxt_VolSetting
+    menu_maintxt_VolSetting = font4.render("音量設定：3キー", True, (0, 0, 0))
 
     global menu_pagetxt_HowToPlay
     menu_pagetxt_HowToPlay = []
@@ -497,12 +525,16 @@ def main():
     menu_pagetxt_SerectSt = []
     for i in Menu.pagetxt_serect_stage:
         menu_pagetxt_SerectSt.append(font5.render(i, True, (0, 0, 0)))
-    global menu_pagetxt_VolumeSetting
-    menu_pagetxt_VolumeSetting = [font1.render("音量設定", True, (0, 0, 0)), 
-                                  font4.render("BGM", True, (0, 0, 0)), 
-                                  font4.render("効果音", True, (0, 0, 0)), 
-                                  font2.render(str(Menu.BGM_volume), True, (0, 0, 0)), 
-                                  font2.render(str(Menu.SoundEffect_volume), True, (0, 0, 0))]
+    global menu_pagetxt_VolSetting
+    menu_pagetxt_VolSetting = [font1.render("音量設定", True, (0, 0, 0)), 
+                               font4.render("BGM", True, (0, 0, 0)), 
+                               font4.render("効果音", True, (0, 0, 0)), 
+                               font2.render(str(Menu.BGM_volume), True, (0, 0, 0)), 
+                               font2.render(str(Menu.SoundEffect_volume), True, (0, 0, 0)), 
+                               font2.render("－", True, (0, 0, 0)), 
+                               font2.render("＋", True, (0, 0, 0)), 
+                               font2.render("四角いカーソルを動かす：矢印キー", True, (0, 0, 0)), 
+                               font2.render("音量を調節する：enterキー", True, (0, 0, 0))]
     global menu_pagetxt_back
     menu_pagetxt_back = font2.render("<<戻る：bキー", True, (0, 0, 0))
     global menu_pagetxt_SerectSt_explain
@@ -587,14 +619,16 @@ def main():
             Menu.mouse_on_maintxt_HowToPlay = 0
         if Menu.mouse_on_maintxt_SerectSt == 1:
             Menu.mouse_on_maintxt_SerectSt = 0
-        if Menu.mouse_on_maintxt_VolumeSetting == 1:
-            Menu.mouse_on_maintxt_VolumeSetting = 0
+        if Menu.mouse_on_maintxt_VolSetting == 1:
+            Menu.mouse_on_maintxt_VolSetting = 0
         if Menu.mouse_on_pagetxt_SerectSt != 0:
             Menu.mouse_on_pagetxt_SerectSt = 0
         if Menu.mouse_on_back == 1:
             Menu.mouse_on_back = 0
-        if Menu.mouse_on_pagetxt_VolumeSetting_line != 0:
-            Menu.mouse_on_pagetxt_VolumeSetting_line = 0
+        if Menu.mouse_on_pagetxt_VolSetting_line != 0:
+            Menu.mouse_on_pagetxt_VolSetting_line = 0
+        if Menu.mouse_on_pagetxt_VolSetting_PlusMinus != 0:
+            Menu.mouse_on_pagetxt_VolSetting_PlusMinus = 0
         if Menu.show_YN == 1:
             Menu.show(screen)
 
@@ -661,6 +695,32 @@ def main():
                                                              St.stage_element[St.st_num-1][8], St.stage_element[St.st_num-1][9],
                                                              St.stage_element[St.st_num-1][10])
                                     pygame.time.set_timer(START_TEXT_RESET, 2000)
+                        if Menu.page_num == 3:
+                            if event.key == K_RIGHT:
+                                if Menu.VolSetting_square_cursor == 1 or Menu.VolSetting_square_cursor == 3:
+                                    Menu.VolSetting_square_cursor += 1
+                            if event.key == K_LEFT:
+                                if Menu.VolSetting_square_cursor == 2 or Menu.VolSetting_square_cursor == 4:
+                                    Menu.VolSetting_square_cursor -= 1
+                            if event.key == K_UP:
+                                if Menu.VolSetting_square_cursor == 3 or Menu.VolSetting_square_cursor == 4:
+                                    Menu.VolSetting_square_cursor -= 2
+                            if event.key == K_DOWN:
+                                if Menu.VolSetting_square_cursor == 1 or Menu.VolSetting_square_cursor == 2:
+                                    Menu.VolSetting_square_cursor += 2
+                            if event.key == K_RETURN:
+                                if Menu.BGM_volume > 0 and Menu.VolSetting_square_cursor == 1:
+                                    serect_sound.play()
+                                    Menu.VolSetting_PM_and_time[0] = 1
+                                elif Menu.BGM_volume < 100 and Menu.VolSetting_square_cursor == 2:
+                                    serect_sound.play()
+                                    Menu.VolSetting_PM_and_time[0] = 2
+                                elif Menu.SoundEffect_volume > 0 and Menu.VolSetting_square_cursor == 3:
+                                    serect_sound.play()
+                                    Menu.VolSetting_PM_and_time[0] = 3
+                                elif Menu.SoundEffect_volume < 100 and Menu.VolSetting_square_cursor == 4:
+                                    serect_sound.play()
+                                    Menu.VolSetting_PM_and_time[0] = 4
                         if event.key == K_b:
                             cancel_sound.play()
                             Menu.page_num = 0
@@ -729,6 +789,15 @@ def main():
                                 if P1.pos['x'] != 0 or P1.pos['x'] == 0 and St.ground_list[0] < 9:
                                     serect_sound.play()
                                     St.ground_list[int(P1.pos['x']/40)] += 1
+            if event.type == KEYUP:
+                if Menu.show_YN == 1:
+                    if Menu.page_num == 3:
+                        if event.key == K_RETURN:
+                            if Menu.VolSetting_PM_and_time[0] != 0:
+                                if Menu.VolSetting_PM_and_time[1] >= 50:
+                                    serect_sound.play()
+                                Menu.VolSetting_PM_and_time[0] = 0
+                                Menu.VolSetting_PM_and_time[1] = 0
             if event.type == MOUSEBUTTONDOWN:
                 if St.next == 0:
                     if P1.zone != 3:
@@ -776,7 +845,7 @@ def main():
                         Menu.SSP_pos_index = St.st_num-1
                         Menu.SSP_pos_GapY = 0
                         Menu.SSP_velY = 0
-                    if Menu.mouse_on_maintxt_VolumeSetting == 1:
+                    if Menu.mouse_on_maintxt_VolSetting == 1:
                         serect_sound.play()
                         Menu.page_num = 3
                     if Menu.mouse_on_pagetxt_SerectSt != 0:
@@ -804,21 +873,42 @@ def main():
                     if Menu.mouse_on_back == 1:
                         cancel_sound.play()
                         Menu.page_num = 0
-                    if Menu.mouse_on_pagetxt_VolumeSetting_line != 0:
+                    if Menu.mouse_on_pagetxt_VolSetting_line != 0:
                         serect_sound.play()
-                        Menu.VolumeSetting = Menu.mouse_on_pagetxt_VolumeSetting_line
+                        Menu.VolSetting = Menu.mouse_on_pagetxt_VolSetting_line
+                    elif Menu.BGM_volume > 0 and Menu.mouse_on_pagetxt_VolSetting_PlusMinus == 1:
+                        Menu.VolSetting_square_cursor = 1
+                        serect_sound.play()
+                        Menu.VolSetting_PM_and_time[0] = 1
+                    elif Menu.BGM_volume < 100 and Menu.mouse_on_pagetxt_VolSetting_PlusMinus == 2:
+                        Menu.VolSetting_square_cursor = 2
+                        serect_sound.play()
+                        Menu.VolSetting_PM_and_time[0] = 2
+                    elif Menu.SoundEffect_volume > 0 and Menu.mouse_on_pagetxt_VolSetting_PlusMinus == 3:
+                        Menu.VolSetting_square_cursor = 3
+                        serect_sound.play()
+                        Menu.VolSetting_PM_and_time[0] = 3
+                    elif Menu.SoundEffect_volume < 100 and Menu.mouse_on_pagetxt_VolSetting_PlusMinus == 4:
+                        Menu.VolSetting_square_cursor = 4
+                        serect_sound.play()
+                        Menu.VolSetting_PM_and_time[0] = 4
             if event.type == MOUSEBUTTONUP:
-                if Menu.VolumeSetting != 0:
-                    Menu.VolumeSetting = 0
+                if Menu.VolSetting != 0:
+                    Menu.VolSetting = 0
                     decision_sound.play()
+                if Menu.VolSetting_PM_and_time[0] != 0:
+                    if Menu.VolSetting_PM_and_time[1] >= 50:
+                        serect_sound.play()
+                    Menu.VolSetting_PM_and_time[0] = 0
+                    Menu.VolSetting_PM_and_time[1] = 0
             if event.type == START_TEXT_RESET:
                 St.start_text = 0
-        
-        if Menu.VolumeSetting == 1:
+
+        if Menu.VolSetting == 1:
             Menu.BGM_volume = min(int((pygame.mouse.get_pos()[0]-350)/250*100), 100) if pygame.mouse.get_pos()[0] >= 350 else 0
             BGM.set_volume(Menu.BGM_volume/100)
-            menu_pagetxt_VolumeSetting[3] = font2.render(str(Menu.BGM_volume), True, (0, 0, 0))
-        elif Menu.VolumeSetting == 2:
+            menu_pagetxt_VolSetting[3] = font2.render(str(Menu.BGM_volume), True, (0, 0, 0))
+        elif Menu.VolSetting == 2:
             Menu.SoundEffect_volume = min(int((pygame.mouse.get_pos()[0]-350)/250*100), 100) if pygame.mouse.get_pos()[0] >= 350 else 0
             goal_sound.set_volume(Menu.SoundEffect_volume/100)
             decision_sound.set_volume(Menu.SoundEffect_volume/100)
@@ -828,7 +918,30 @@ def main():
             jump_sound.set_volume(Menu.SoundEffect_volume/100)
             impact_sound.set_volume(Menu.SoundEffect_volume/100)
             coin_sound.set_volume(Menu.SoundEffect_volume/100)
-            menu_pagetxt_VolumeSetting[4] = font2.render(str(Menu.SoundEffect_volume), True, (0, 0, 0))
+            menu_pagetxt_VolSetting[4] = font2.render(str(Menu.SoundEffect_volume), True, (0, 0, 0))
+
+        if Menu.VolSetting_PM_and_time[0] != 0:
+            Menu.VolSetting_PM_and_time[1] += 1
+            if Menu.VolSetting_PM_and_time[1] == 1 or Menu.VolSetting_PM_and_time[1] >= 50:
+                if Menu.VolSetting_PM_and_time[0] == 1 and Menu.BGM_volume > 0:
+                    Menu.BGM_volume -= 1
+                elif Menu.VolSetting_PM_and_time[0] == 2 and Menu.BGM_volume < 100:
+                    Menu.BGM_volume += 1
+                elif Menu.VolSetting_PM_and_time[0] == 3 and Menu.SoundEffect_volume > 0:
+                    Menu.SoundEffect_volume -= 1
+                elif Menu.VolSetting_PM_and_time[0] == 4 and Menu.SoundEffect_volume < 100:
+                    Menu.SoundEffect_volume += 1
+                BGM.set_volume(Menu.BGM_volume/100)
+                menu_pagetxt_VolSetting[3] = font2.render(str(Menu.BGM_volume), True, (0, 0, 0))
+                goal_sound.set_volume(Menu.SoundEffect_volume/100)
+                decision_sound.set_volume(Menu.SoundEffect_volume/100)
+                serect_sound.set_volume(Menu.SoundEffect_volume/100)
+                open_menu_sound.set_volume(Menu.SoundEffect_volume/100)
+                cancel_sound.set_volume(Menu.SoundEffect_volume/100)
+                jump_sound.set_volume(Menu.SoundEffect_volume/100)
+                impact_sound.set_volume(Menu.SoundEffect_volume/100)
+                coin_sound.set_volume(Menu.SoundEffect_volume/100)
+                menu_pagetxt_VolSetting[4] = font2.render(str(Menu.SoundEffect_volume), True, (0, 0, 0))
 
         key = pygame.key.get_pressed()
         if Menu.show_YN == 0:
