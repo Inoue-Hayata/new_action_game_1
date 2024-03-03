@@ -131,6 +131,13 @@ class stage():
         for i in range(self.coin_num):
             if self.coin_pos[i] != None:
                 screen.blit(coin_png, (self.coin_pos[i][0], self.coin_pos[i][1]))   #コイン
+        if P1.zone == 1:
+            if self.ground_list[0] > 0:
+                screen.blit(up_arrow_png, (0, 210))
+            for i in range(1, 20+1):
+                screen.blit(up_arrow_png, (40*i, 210))
+            for i in range(21):
+                screen.blit(down_arrow_png, (40*i, 290))
         if P1.zone == 3:
             pygame.draw.rect(screen, (255,255,255), (0, 0, 800, 520))
             screen.blit(St_AllClear_txt, (100, 200))
@@ -559,6 +566,11 @@ def main():
     global coin_png
     coin_png = pygame.transform.rotozoom(pygame.image.load("coin.png"),0,40/1000)
 
+    global up_arrow_png
+    up_arrow_png = pygame.transform.rotozoom(pygame.image.load("up_arrow.png"),0,40/1000)
+    global down_arrow_png
+    down_arrow_png = pygame.transform.rotozoom(pygame.image.load("up_arrow.png"),180,40/1000)
+
     global BGM
     BGM = pygame.mixer.Sound('魔王魂 ループ  8bit11.mp3')
     global goal_sound
@@ -784,7 +796,7 @@ def main():
                                     serect_sound.play()
                                     P1.move(40,0)
                             if event.key == K_LEFT:
-                                if P1.pos['x'] > 40:
+                                if P1.pos['x'] >= 40:
                                     serect_sound.play()
                                     P1.move(-40,0)
 
