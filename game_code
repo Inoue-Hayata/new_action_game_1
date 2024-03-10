@@ -134,11 +134,18 @@ class stage():
         if P1.zone == 1:
             if P1.pos['x']%40 == 0:
                 if P1.pos['x'] == 0:
-                    if self.ground_list[int(P1.pos['x']/40)] > 0:
+                    if self.ground_list[0] > 0:
                         screen.blit(up_arrow_png, (0, 210))
                 else:
                     screen.blit(up_arrow_png, (P1.pos['x'], 210))
                 screen.blit(down_arrow_png, (P1.pos['x'], 290))
+            else:
+                if P1.pos['x'] < 40:
+                    if self.ground_list[0] > 0:
+                        screen.blit(up_arrow_png, (0, 210))
+                else:
+                    screen.blit(up_arrow_png, (P1.pos['x']//40*40, 210))
+                screen.blit(down_arrow_png, (P1.pos['x']//40*40, 290))
         if P1.zone == 3:
             pygame.draw.rect(screen, (255,255,255), (0, 0, 800, 520))
             screen.blit(St_AllClear_txt, (100, 200))
@@ -820,11 +827,11 @@ def main():
                                     P1.move(-40,0)
 
                             if event.key == K_UP:
-                                if P1.pos['x'] != 0 or P1.pos['x'] == 0 and St.ground_list[0] > 0:
+                                if P1.pos['x']//40 != 0 or P1.pos['x']//40 == 0 and St.ground_list[0] > 0:
                                     serect_sound.play()
                                     St.ground_list[int(P1.pos['x']/40)] -= 1
                             if event.key == K_DOWN:
-                                if P1.pos['x'] != 0 or P1.pos['x'] == 0 and St.ground_list[0] < 9:
+                                if P1.pos['x']//40 != 0 or P1.pos['x']//40 == 0 and St.ground_list[0] < 9:
                                     serect_sound.play()
                                     St.ground_list[int(P1.pos['x']/40)] += 1
             if event.type == KEYUP:
