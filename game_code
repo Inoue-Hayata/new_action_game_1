@@ -91,6 +91,8 @@ class stage():
         self.coin_pos = []
         self.coin_size = [32,40]   #今のところ変更なし
         self.coin_count = 0
+        self.mouse_on_up_arrow = 0
+        self.mouse_on_down_arrow = 0
         self.stage_element = [[40,40,-4.0,5,0,720,40,40,80,0,0], [40,40,-3.5,5,1,720,40,40,80,0,0], [40,40,-4.0,5,2,720,40,40,80,0,0], [40,40,-4.0,5,3,720,40,40,80,0,0], 
                               [40,40,-4.0,5,4,720,40,40,80,0,0], [40,40,-4.0,5,5,720,40,40,80,0,0], [40,40,-4.0,5,6,720,40,40,80,0,0], [40,40,-4.0,5,7,720,40,40,80,0,0], 
                               [40,40,-4.0,5,8,720,40,40,80,0,0], [40,40,-4.0,5,0,720,40,40,80,800,5], [30,30,-3.0,5,6,720,40,40,80,1000,7], [50,50,-3.0,5,10,720,40,40,80,0,0], 
@@ -136,16 +138,40 @@ class stage():
                 if P1.pos['x'] == 0:
                     if self.ground_list[0] > 0:
                         screen.blit(up_arrow_png, (0, 210))
+                        if (0 <= pygame.mouse.get_pos()[0] <= 40 
+                            and 210 <= pygame.mouse.get_pos()[1] <= 230):
+                            self.mouse_on_up_arrow = 1
+                            pygame.draw.rect(screen, (0, 0, 0), (0, 210, 40, 20), 1)
                 else:
                     screen.blit(up_arrow_png, (P1.pos['x'], 210))
+                    if (P1.pos['x'] <= pygame.mouse.get_pos()[0] <= P1.pos['x'] + P1.size['x'] 
+                        and 210 <= pygame.mouse.get_pos()[1] <= 230):
+                        self.mouse_on_up_arrow = 1
+                        pygame.draw.rect(screen, (0, 0, 0), (P1.pos['x'], 210, 40, 20), 1)
                 screen.blit(down_arrow_png, (P1.pos['x'], 290))
+                if (P1.pos['x'] <= pygame.mouse.get_pos()[0] <= P1.pos['x'] + P1.size['x'] 
+                    and 290 <= pygame.mouse.get_pos()[1] <= 310):
+                    self.mouse_on_down_arrow = 1
+                    pygame.draw.rect(screen, (0, 0, 0), (P1.pos['x'], 290, 40, 20), 1)
             else:
                 if P1.pos['x'] < 40:
                     if self.ground_list[0] > 0:
                         screen.blit(up_arrow_png, (0, 210))
+                        if (0 <= pygame.mouse.get_pos()[0] <= 40 
+                            and 210 <= pygame.mouse.get_pos()[1] <= 230):
+                            self.mouse_on_up_arrow = 1
+                            pygame.draw.rect(screen, (0, 0, 0), (0, 210, 40, 20), 1)
                 else:
                     screen.blit(up_arrow_png, (P1.pos['x']//40*40, 210))
+                    if (P1.pos['x']//40*40 <= pygame.mouse.get_pos()[0] <= P1.pos['x']//40*40 + P1.size['x'] 
+                        and 210 <= pygame.mouse.get_pos()[1] <= 230):
+                        self.mouse_on_up_arrow = 1
+                        pygame.draw.rect(screen, (0, 0, 0), (P1.pos['x']//40*40, 210, 40, 20), 1)
                 screen.blit(down_arrow_png, (P1.pos['x']//40*40, 290))
+                if (P1.pos['x']//40*40 <= pygame.mouse.get_pos()[0] <= P1.pos['x']//40*40 + P1.size['x'] 
+                    and 290 <= pygame.mouse.get_pos()[1] <= 310):
+                    self.mouse_on_down_arrow = 1
+                    pygame.draw.rect(screen, (0, 0, 0), (P1.pos['x']//40*40, 290, 40, 20), 1)
         if P1.zone == 3:
             pygame.draw.rect(screen, (255,255,255), (0, 0, 800, 520))
             screen.blit(St_AllClear_txt, (100, 200))
@@ -630,6 +656,11 @@ def main():
     BGM.play(-1)
     while True:
         screen.fill((255,255,255))
+
+        if St.mouse_on_up_arrow == 1:
+            St.mouse_on_up_arrow = 0
+        if St.mouse_on_down_arrow == 1:
+            St.mouse_on_down_arrow = 0
         St.St_main(screen)
 
         P1.show(screen)
@@ -870,6 +901,12 @@ def main():
                                                     St.stage_element[St.st_num-1][8], St.stage_element[St.st_num-1][9],
                                                     St.stage_element[St.st_num-1][10])
                             pygame.time.set_timer(START_TEXT_RESET, 2000)
+                        if St.mouse_on_up_arrow == 1:
+                            serect_sound.play()
+                            St.ground_list[int(P1.pos['x']/40)] -= 1
+                        if St.mouse_on_down_arrow == 1:
+                            serect_sound.play()
+                            St.ground_list[int(P1.pos['x']/40)] += 1
                     if Ifm.mouse_on_txt_menu == 1:
                         open_menu_sound.play()
                         Menu.page_num = 0
