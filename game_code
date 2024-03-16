@@ -862,11 +862,11 @@ def main():
                                     P1.move(-40,0)
 
                             if event.key == K_UP:
-                                if P1.pos['x']//40 != 0 and St.ground_list[P1.pos['x']//40] > -10 or P1.pos['x']//40 == 0 and St.ground_list[0] > 0:
+                                if P1.pos['x']//40 != 0 and St.ground_list[int(P1.pos['x']//40)] > -10 or P1.pos['x']//40 == 0 and St.ground_list[0] > 0:
                                     serect_sound.play()
                                     St.ground_list[int(P1.pos['x']/40)] -= 1
                             if event.key == K_DOWN:
-                                if P1.pos['x']//40 != 0 and St.ground_list[P1.pos['x']//40] < 10 or P1.pos['x']//40 == 0 and St.ground_list[0] < 9:
+                                if P1.pos['x']//40 != 0 and St.ground_list[int(P1.pos['x']//40)] < 10 or P1.pos['x']//40 == 0 and St.ground_list[0] < 9:
                                     serect_sound.play()
                                     St.ground_list[int(P1.pos['x']/40)] += 1
             if event.type == KEYUP:
