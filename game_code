@@ -1058,10 +1058,12 @@ def main():
                         else:
                             P1.move(-8,0)
                     if (P1.pos['y'] >= 400+St.ground_list[int(P1.pos['x']//40)]*40-P1.size['y'] 
-                        or P1.pos['y'] >= 400+St.ground_list[int((P1.pos['x']+P1.size['x']-1)//40)]*40-P1.size['y']):
-                        if key[pygame.K_UP] == 1:
-                            jump_sound.play()
-                            P1.move(0,P1.jump_power)
+                        or P1.pos['y'] >= 400+St.ground_list[int((P1.pos['x']+P1.size['x'])/40-1 if (P1.pos['x']+P1.size['x'])%40 == 0 else (P1.pos['x']+P1.size['x'])//40)]*40-P1.size['y']):
+                        if (P1.pos['y'] > 120+St.ground_list[int(P1.pos['x']//40)]*40 
+                            and P1.pos['y'] > 120+St.ground_list[int((P1.pos['x']+P1.size['x'])/40-1 if (P1.pos['x']+P1.size['x'])%40 == 0 else (P1.pos['x']+P1.size['x'])//40)]*40):
+                            if key[pygame.K_UP] == 1:
+                                jump_sound.play()
+                                P1.move(0,P1.jump_power)
 
 
         def GoalAndNextStage(NextStageNum):
