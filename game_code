@@ -60,18 +60,13 @@ class Player():
                     self.vel['y'] += vel_y + 0.08
                     self.pos['y'] += self.vel['y']
                     #天井・床の判定
-                    if P1.pos['y'] < 120+St.ground_list[int(P1.pos['x']//40)]*40:   #左上
-                        P1.vel['y'] = 0
-                        P1.pos['y'] = 120+St.ground_list[int(P1.pos['x']//40)]*40
-                    if P1.pos['y'] < 120+St.ground_list[int((P1.pos['x']+P1.size['x']-1)//40)]*40:  #右上
-                        P1.vel['y'] = 0
-                        P1.pos['y'] = 120+St.ground_list[int((P1.pos['x']+P1.size['x']-1)//40)]*40
-                    if P1.pos['y']+P1.size['y'] > 400+St.ground_list[int(P1.pos['x']//40)]*40:    #左下
-                        P1.vel['y'] = 0
-                        P1.pos['y'] = 400+St.ground_list[int(P1.pos['x']//40)]*40-P1.size['y']
-                    if P1.pos['y']+P1.size['y'] > 400+St.ground_list[int((P1.pos['x']+P1.size['x']-1)//40)]*40:   #右下
-                        P1.vel['y'] = 0
-                        P1.pos['y'] = 400+St.ground_list[int((P1.pos['x']+P1.size['x']-1)//40)]*40-P1.size['y']
+                    for i in range(int(((P1.pos['x']+P1.size['x'])/40-1 if (P1.pos['x']+P1.size['x'])%40 == 0 else (P1.pos['x']+P1.size['x'])//40) - P1.pos['x']//40 + 1)):
+                        if P1.pos['y'] < 120+St.ground_list[int(P1.pos['x']//40)+i]*40:
+                            P1.vel['y'] = 0
+                            P1.pos['y'] = 120+St.ground_list[int(P1.pos['x']//40)+i]*40
+                        if P1.pos['y']+P1.size['y'] > 400+St.ground_list[int(P1.pos['x']//40)+i]*40:
+                            P1.vel['y'] = 0
+                            P1.pos['y'] = 400+St.ground_list[int(P1.pos['x']//40)+i]*40 - P1.size['y']
 
 class stage():
     def __init__(self):
@@ -1057,10 +1052,9 @@ def main():
                                     P1.move(-8,0)
                         else:
                             P1.move(-8,0)
-                    if (P1.pos['y'] >= 400+St.ground_list[int(P1.pos['x']//40)]*40-P1.size['y'] 
-                        or P1.pos['y'] >= 400+St.ground_list[int((P1.pos['x']+P1.size['x'])/40-1 if (P1.pos['x']+P1.size['x'])%40 == 0 else (P1.pos['x']+P1.size['x'])//40)]*40-P1.size['y']):
-                        if (P1.pos['y'] > 120+St.ground_list[int(P1.pos['x']//40)]*40 
-                            and P1.pos['y'] > 120+St.ground_list[int((P1.pos['x']+P1.size['x'])/40-1 if (P1.pos['x']+P1.size['x'])%40 == 0 else (P1.pos['x']+P1.size['x'])//40)]*40):
+                    for i in range(int(((P1.pos['x']+P1.size['x'])/40-1 if (P1.pos['x']+P1.size['x'])%40 == 0 else (P1.pos['x']+P1.size['x'])//40) - P1.pos['x']//40 + 1)):
+                        if (P1.pos['y'] > 120+St.ground_list[int(P1.pos['x']//40)+i]*40 
+                            and P1.pos['y']+P1.size['y'] >= 400+St.ground_list[int(P1.pos['x']//40)+i]*40):
                             if key[pygame.K_UP] == 1:
                                 jump_sound.play()
                                 P1.move(0,P1.jump_power)
