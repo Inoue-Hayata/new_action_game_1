@@ -9,22 +9,22 @@ class Player():
         self.size = {'x':40, 'y':40}
         self.vel = {'x':0, 'y':0}
         self.jump_power = -4.0
-        self.zone = 0   #0が通常、1が編集モード、2がgame over画面、3が23ステージクリア画面
+        self.zone = 0   # 0が通常、1が編集モード、2がgame over画面、3が23ステージクリア画面
         self.no_control = 0
-        self.flash = 0  #0が通常、1が敵と当たった時、2が編集モード、3が自爆
+        self.flash = 0  # 0が通常、1が敵と当たった時、2が編集モード、3が自爆
         self.flash_count = 0
     def show(self, screen):
-        if self.zone != 1:
+        if self.zone != 1:  # 編集モード以外
             if self.flash == 0 or (self.flash == 1 or self.flash == 3) and self.flash_count//10%2 == 1:
-                pygame.draw.rect(screen, (255,255,0), (self.pos['x'],self.pos['y'],self.size['x'],self.size['y']),0)
-        else:
+                pygame.draw.rect(screen, (255,255,0), (self.pos['x'],self.pos['y'],self.size['x'],self.size['y']),0)    # プレイヤーの中身
+        else:               # 編集モード内
             if self.flash == 0 or (self.flash == 1 or self.flash == 2) and self.flash_count//10%2 == 1:
-                zone_1_rect = pygame.Surface((self.size['x'], self.size['y']), pygame.SRCALPHA)
-                pygame.draw.rect(zone_1_rect, (255,255,0,150), zone_1_rect.get_rect())
-                zone_1_rect.set_alpha(150)# 四角形の透明度を設定
-                screen.blit(zone_1_rect, (self.pos['x'], self.pos['y']))# 四角形を画面に描画
+                zone_1_rect = pygame.Surface((self.size['x'], self.size['y']), pygame.SRCALPHA) # 四角形のためのサーフェス(zone_1_rect)を作成
+                pygame.draw.rect(zone_1_rect, (255,255,0,150), zone_1_rect.get_rect())  # サーフェス(zone_1_rect)上に黄色い四角形を描画
+                zone_1_rect.set_alpha(150)  # サーフェス(zone_1_rect)全体の透明度を設定
+                screen.blit(zone_1_rect, (self.pos['x'], self.pos['y']))    # (半透明の)四角形(zone_1_rect)をサーフェス(screen)に描画
         if self.flash == 0 or (self.flash == 1 or self.flash == 2 or self.flash == 3) and self.flash_count//10%2 == 1:
-            pygame.draw.rect(screen, (0,0,0), (self.pos['x'],self.pos['y'],self.size['x'],self.size['y']),1)
+            pygame.draw.rect(screen, (0,0,0), (self.pos['x'],self.pos['y'],self.size['x'],self.size['y']),1)    # プレイヤーの枠線
     def move(self,vel_x,vel_y):
         if self.flash == 0:
             self.flash_count = 0
@@ -36,6 +36,8 @@ class Player():
                 P1.pos['y'] = 340
                 P1.vel['x'] = 0
                 P1.vel['y'] = 0
+                P1.size['x'] = St.stage_element[St.st_num-1][0]
+                P1.size['y'] = St.stage_element[St.st_num-1][1]
                 if P1.zone != 2 or P1.zone == 2 and Ifm.lives == 1:
                     Ifm.lives -= 1
                     global Ifm_txt_lives
@@ -59,7 +61,7 @@ class Player():
                 if St.next == 0:
                     self.vel['y'] += vel_y + 0.08
                     self.pos['y'] += self.vel['y']
-                    #天井・床の判定
+                    # 天井・床の判定
                     for i in range(int(((P1.pos['x']+P1.size['x'])/40-1 if (P1.pos['x']+P1.size['x'])%40 == 0 else (P1.pos['x']+P1.size['x'])//40) - P1.pos['x']//40 + 1)):
                         if P1.pos['y'] < 120+St.ground_list[int(P1.pos['x']//40)+i]*40:
                             P1.vel['y'] = 0
@@ -78,13 +80,13 @@ class stage():
         self.st_num = 1
         self.next = 0
         self.start_text = 1
-        self.block_enemy = 0    #1基本ブロック敵 2デカ敵 4動くチビ敵 8不規則に動く極チビ敵
+        self.block_enemy = 0    # 1基本ブロック敵 2デカ敵 4動くチビ敵 8不規則に動く極チビ敵
         self.b_enemy1_pos = [[240,280],[440,220],[300,340],[780,0]]
         self.b_enemy1_size = [40,100,30,20]
         self.b_enemy1_vel = [[0,0],[0,0],[3,3],[1,1]]
-        self.coin_num = 0   #コインの個数
+        self.coin_num = 0   # コインの個数
         self.coin_pos = []
-        self.coin_size = [32,40]   #今のところ変更なし
+        self.coin_size = [32,40]   # 今のところ変更なし
         self.coin_count = 0
         self.mouse_on_up_arrow = 0
         self.mouse_on_down_arrow = 0
@@ -94,7 +96,7 @@ class stage():
                               [40,40,-3.0,5,12,720,40,40,80,0,0], [40,40,-4.0,5,0,720,40,40,80,0,0], [40,40,-4.0,5,0,720,40,40,80,0,0], [40,40,-4.0,5,0,720,40,40,80,0,0], 
                               [40,40,-4.0,5,0,720,40,40,80,0,0], [40,40,-4.0,5,0,720,40,40,80,0,0], [40,40,-4.0,5,0,720,40,40,80,0,0], [40,40,-4.0,5,0,720,40,40,80,0,0], 
                               [40,40,-4.0,5,0,720,40,40,80,0,0], [40,40,-4.0,5,0,720,40,40,80,0,0], [40,40,-4.0,5,0,720,40,40,80,0,0],]
-                            #P1SizeX, P1SizeY, P1JumpPower, IfmLives, St_b_enemy, StGoalPosX, StGoalPosY, StGoalSizeX, StGoalSizeY, StGoalGap, StCoinNum
+                            # P1SizeX, P1SizeY, P1JumpPower, IfmLives, St_b_enemy, StGoalPosX, StGoalPosY, StGoalSizeX, StGoalSizeY, StGoalGap, StCoinNum
     def St_main(self,screen):
         self.show(screen)
         if P1.flash == 0:
@@ -108,26 +110,26 @@ class stage():
             self.coin_judgement()
     def show(self,screen):
         if self.coin_count == self.coin_num:
-            pygame.draw.ellipse(screen, (255,255,0), (self.goal_pos['x'], self.goal_pos['y'], self.goal_size['x'], self.goal_size['y']),0)  #ゴール(黄色塗りつぶし)
+            pygame.draw.ellipse(screen, (255,255,0), (self.goal_pos['x'], self.goal_pos['y'], self.goal_size['x'], self.goal_size['y']),0)  # ゴール(黄色塗りつぶし)
         for i in range(20):
-            pygame.draw.rect(screen, (90,90,90), (i*40, 0, 40, 120+self.ground_list[i]*40),0)   #ステージ天井ブロック
-            pygame.draw.rect(screen, (90,90,90), (i*40, 400+self.ground_list[i]*40, 40, 520-(400+self.ground_list[i]*40)),0)    #ステージ地面ブロック
+            pygame.draw.rect(screen, (90,90,90), (i*40, 0, 40, 120+self.ground_list[i]*40),0)   # ステージ天井ブロック
+            pygame.draw.rect(screen, (90,90,90), (i*40, 400+self.ground_list[i]*40, 40, 520-(400+self.ground_list[i]*40)),0)    # ステージ地面ブロック
         for i in range(20):
-            pygame.draw.line(screen, (0,0,0), (i*40,120+self.ground_list[i]*40), (i*40+40,120+self.ground_list[i]*40),1)    #ステージ天井境界線(横)
-            pygame.draw.line(screen, (0,0,0), (i*40,400+self.ground_list[i]*40), (i*40+40,400+self.ground_list[i]*40),1)    #ステージ地面境界線(横)
+            pygame.draw.line(screen, (0,0,0), (i*40,120+self.ground_list[i]*40), (i*40+40,120+self.ground_list[i]*40),1)    # ステージ天井境界線(横)
+            pygame.draw.line(screen, (0,0,0), (i*40,400+self.ground_list[i]*40), (i*40+40,400+self.ground_list[i]*40),1)    # ステージ地面境界線(横)
         for i in range(19):
-            pygame.draw.line(screen, (0,0,0), (i*40+40,120+self.ground_list[i]*40), (i*40+40,120+self.ground_list[i+1]*40),1)   #ステージ天井境界線(縦)
-            pygame.draw.line(screen, (0,0,0), (i*40+40,400+self.ground_list[i]*40), (i*40+40,400+self.ground_list[i+1]*40),1)   #ステージ地面境界線(縦)
+            pygame.draw.line(screen, (0,0,0), (i*40+40,120+self.ground_list[i]*40), (i*40+40,120+self.ground_list[i+1]*40),1)   # ステージ天井境界線(縦)
+            pygame.draw.line(screen, (0,0,0), (i*40+40,400+self.ground_list[i]*40), (i*40+40,400+self.ground_list[i+1]*40),1)   # ステージ地面境界線(縦)
         if self.coin_count == self.coin_num:
-            pygame.draw.ellipse(screen, (255,255,0), (self.goal_pos['x'], self.goal_pos['y'], self.goal_size['x'], self.goal_size['y']),1)  #ゴール枠(黄色)
-        pygame.draw.rect(screen, (255,255,255), (0, 520, 800, 80))  #Ifm背景
-        pygame.draw.line(screen, (0,0,0), (0,520), (800, 520))  #Ifm境界線
+            pygame.draw.ellipse(screen, (255,255,0), (self.goal_pos['x'], self.goal_pos['y'], self.goal_size['x'], self.goal_size['y']),1)  # ゴール枠(黄色)
+        pygame.draw.rect(screen, (255,255,255), (0, 520, 800, 80))  # Ifm背景
+        pygame.draw.line(screen, (0,0,0), (0,520), (800, 520))  # Ifm境界線
         for i in range(1, len(format(self.block_enemy, 'b'))+1):
             if int(str(format(self.block_enemy, 'b'))[-i]) == 1:
-                screen.blit(block_toge_png_list[i-1],(self.b_enemy1_pos[i-1][0],self.b_enemy1_pos[i-1][1])) #とげブロック
+                screen.blit(block_toge_png_list[i-1],(self.b_enemy1_pos[i-1][0],self.b_enemy1_pos[i-1][1])) # とげブロック
         for i in range(self.coin_num):
             if self.coin_pos[i] != None:
-                screen.blit(coin_png, (self.coin_pos[i][0], self.coin_pos[i][1]))   #コイン
+                screen.blit(coin_png, (self.coin_pos[i][0], self.coin_pos[i][1]))   # コイン
         if P1.zone == 1:
             if P1.pos['x']%40 == 0:
                 if P1.pos['x'] == 0:
@@ -174,13 +176,13 @@ class stage():
         if P1.zone == 3:
             pygame.draw.rect(screen, (255,255,255), (0, 0, 800, 520))
             screen.blit(St_AllClear_txt, (100, 200))
-    def show_2(self, screen):   #最前面
+    def show_2(self, screen):   # 最前面
         if St.start_text != 0:
             St_start_txt_1 = font3.render("ステージ："+str(St.st_num), True, (0, 0, 0))
-            screen.blit(St_start_txt_1, (400-100*(5+len(str(St.st_num))/2)/2, 150)) #ステージ開始時のステージ数表示
+            screen.blit(St_start_txt_1, (400-100*(5+len(str(St.st_num))/2)/2, 150)) # ステージ開始時のステージ数表示
         if P1.zone == 2:
-            pygame.draw.rect(screen, (255,255,255), (0, 0, 800, 520))   #game over画面の背景
-            screen.blit(St_GameOver_txt, (150, 210))    #game over の文字
+            pygame.draw.rect(screen, (255,255,255), (0, 0, 800, 520))   # game over画面の背景
+            screen.blit(St_GameOver_txt, (150, 210))    # game over の文字
 
     def b_enemy_move(self):
         for i in range(1, len(format(self.block_enemy, 'b'))+1):
@@ -264,19 +266,19 @@ class stage():
                 else:
                     if ((((self.coin_pos[i][0]+self.coin_size[0]/2)-P1.pos['x'])**2 + ((self.coin_pos[i][1]+8)-P1.pos['y'])**2)**0.5 
                         + (((self.coin_pos[i][0]+self.coin_size[0]/2)-P1.pos['x'])**2 + ((self.coin_pos[i][1]+32)-P1.pos['y'])**2)**0.5 
-                        <= self.coin_size[1]): #プレイヤー左上
+                        <= self.coin_size[1]): # プレイヤー左上
                         coin_get = 1
                     elif ((((self.coin_pos[i][0]+self.coin_size[0]/2)-(P1.pos['x']+P1.size['x']))**2 + ((self.coin_pos[i][1]+8)-P1.pos['y'])**2)**0.5 
                           + (((self.coin_pos[i][0]+self.coin_size[0]/2)-(P1.pos['x']+P1.size['x']))**2 + ((self.coin_pos[i][1]+32)-P1.pos['y'])**2)**0.5 
-                          <= self.coin_size[1]):   #プレイヤー右上
+                          <= self.coin_size[1]):   # プレイヤー右上
                         coin_get = 1
                     elif ((((self.coin_pos[i][0]+self.coin_size[0]/2)-P1.pos['x'])**2 + ((self.coin_pos[i][1]+8)-(P1.pos['y']+P1.size['y']))**2)**0.5 
                           + (((self.coin_pos[i][0]+self.coin_size[0]/2)-P1.pos['x'])**2 + ((self.coin_pos[i][1]+32)-(P1.pos['y']+P1.size['y']))**2)**0.5 
-                          <= self.coin_size[1]):   #プレイヤー左下
+                          <= self.coin_size[1]):   # プレイヤー左下
                         coin_get = 1
                     elif ((((self.coin_pos[i][0]+self.coin_size[0]/2)-(P1.pos['x']+P1.size['x']))**2 + ((self.coin_pos[i][1]+8)-(P1.pos['y']+P1.size['y']))**2)**0.5 
                           + (((self.coin_pos[i][0]+self.coin_size[0]/2)-(P1.pos['x']+P1.size['x']))**2 + ((self.coin_pos[i][1]+32)-(P1.pos['y']+P1.size['y']))**2)**0.5 
-                          <= self.coin_size[1]): #プレイヤー右下
+                          <= self.coin_size[1]): # プレイヤー右下
                         coin_get = 1
                 if coin_get == 1:
                     coin_sound.play()
@@ -378,10 +380,10 @@ class menu():
         self.mouse_on_pagetxt_SerectSt = 0
         self.mouse_on_back = 0
         self.mouse_on_pagetxt_VolSetting_line = 0
-        self.mouse_on_pagetxt_VolSetting_PlusMinus = 0  #1BGM＋ 2BGM－ 3効果音＋ 4効果音－
-        self.VolSetting_PM_and_time = [0, 0]    #1BGM＋ 2BGM－ 3効果音＋ 4効果音－, 時間
-        self.VolSetting_square_cursor = 1   #1BGM＋ 2BGM－ 3効果音＋ 4効果音－
-        self.VolSetting = 0  #音量変更中(スライダーで)
+        self.mouse_on_pagetxt_VolSetting_PlusMinus = 0  # 1BGM＋ 2BGM－ 3効果音＋ 4効果音－
+        self.VolSetting_PM_and_time = [0, 0]    # 1BGM＋ 2BGM－ 3効果音＋ 4効果音－, 時間
+        self.VolSetting_square_cursor = 1   # 1BGM＋ 2BGM－ 3効果音＋ 4効果音－
+        self.VolSetting = 0  # 音量変更中(スライダーで)
         self.BGM_volume = 50
         self.SoundEffect_volume = 50
         self.SSP_pos_list = [[175,150],[295,150],[415,150],[535,150],[655,150],
@@ -402,7 +404,7 @@ class menu():
         pygame.draw.rect(screen, (255,255,255), (100, 100, 600, 400), border_radius=15)
         pygame.draw.rect(screen, (0,0,0), (100, 100, 600, 400), 2, border_radius=15)
 
-        if self.page_num == 0:  #トップ
+        if self.page_num == 0:  # トップ
             screen.blit(menu_maintxt_HowToPlay, (110, 150))
             if 110 <= pygame.mouse.get_pos()[0] <= 617.5:
                 if 150 <= pygame.mouse.get_pos()[1] <= 185:
@@ -424,12 +426,12 @@ class menu():
                 if 112.5 <= pygame.mouse.get_pos()[1] <= 137.5:
                     self.mouse_on_back = 1
                     pygame.draw.rect(screen, (0, 0, 0), (110, 112.5, 162.5, 25), 1)
-        if self.page_num == 1:  #説明
+        if self.page_num == 1:  # 説明
             for i in range(0,len(self.pagetxt_rule)):
                 screen.blit(menu_pagetxt_HowToPlay[i], (110, 150+i*40))
-        if self.page_num == 2:  #ステージ選択画面
+        if self.page_num == 2:  # ステージ選択画面
             for i in range(0,len(self.pagetxt_serect_stage)):
-                screen.blit(menu_pagetxt_SerectSt[i], (400-len(self.pagetxt_serect_stage[i])*15, 150+i*60)) #ステージ数の描画(1~23)
+                screen.blit(menu_pagetxt_SerectSt[i], (400-len(self.pagetxt_serect_stage[i])*15, 150+i*60)) # ステージ数の描画(1~23)
             self.SSP_velY += 0.08
             if self.SSP_pos_GapY >= 40:
                 self.SSP_pos_GapY == 40
@@ -463,22 +465,22 @@ class menu():
                     if self.pagetxt_serectSt_posX3[i][0] <= pygame.mouse.get_pos()[0] <= self.pagetxt_serectSt_posX3[i][1]:
                         self.mouse_on_pagetxt_SerectSt = i+19
                         pygame.draw.rect(screen, (0, 0, 0), (self.pagetxt_serectSt_posX3[i][0], 390, 60, 60), 1)
-        if self.page_num == 3:  #音量設定
-            screen.blit(menu_pagetxt_VolSetting[0], (320, 200))   #"音量設定", 40
+        if self.page_num == 3:  # 音量設定
+            screen.blit(menu_pagetxt_VolSetting[0], (320, 200))   # "音量設定", 40
 
-            screen.blit(menu_pagetxt_VolSetting[1], (180, 270))   #"BGM", 35
+            screen.blit(menu_pagetxt_VolSetting[1], (180, 270))   # "BGM", 35
             pygame.draw.line(screen, (0, 0, 0), (350, 287.5), (600, 287.5), 3)
             BGM_Volume_Circle = pygame.draw.circle(screen, (0, 0, 0), (350+250*self.BGM_volume/100, 287.5), 10, 3)
             screen.blit(menu_pagetxt_VolSetting[3], (475-len(str(self.BGM_volume))*6.25, 250))
-            screen.blit(menu_pagetxt_VolSetting[5], (305, 275))  #"－", 25
-            screen.blit(menu_pagetxt_VolSetting[6], (620, 275))  #"＋", 25
+            screen.blit(menu_pagetxt_VolSetting[5], (305, 275))  # "－", 25
+            screen.blit(menu_pagetxt_VolSetting[6], (620, 275))  # "＋", 25
 
-            screen.blit(menu_pagetxt_VolSetting[2], (180, 320))   #"効果音", 35
+            screen.blit(menu_pagetxt_VolSetting[2], (180, 320))   # "効果音", 35
             pygame.draw.line(screen, (0, 0, 0), (350, 337.5), (600, 337.5), 3)
             SoundEffect_Volume_Circle = pygame.draw.circle(screen, (0, 0, 0), (350+250*self.SoundEffect_volume/100, 337.5), 10, 3)
             screen.blit(menu_pagetxt_VolSetting[4], (475-len(str(self.SoundEffect_volume))*6.25, 300))
-            screen.blit(menu_pagetxt_VolSetting[5], (305, 325))  #"－", 25
-            screen.blit(menu_pagetxt_VolSetting[6], (620, 325))  #"＋", 25
+            screen.blit(menu_pagetxt_VolSetting[5], (305, 325))  # "－", 25
+            screen.blit(menu_pagetxt_VolSetting[6], (620, 325))  # "＋", 25
 
             if self.VolSetting_square_cursor == 1:
                 pygame.draw.rect(screen, (0, 0, 0), (305, 275, 25, 25), 1)
@@ -490,7 +492,7 @@ class menu():
                 pygame.draw.rect(screen, (0, 0, 0), (620, 325, 25, 25), 1)
 
             if (350 <= pygame.mouse.get_pos()[0] <= 600 and 277.5 <= pygame.mouse.get_pos()[1] <= 297.5 
-                or (abs(pygame.mouse.get_pos()[0]-(BGM_Volume_Circle.x+10))**2+abs(pygame.mouse.get_pos()[1]-(BGM_Volume_Circle.y+10))**2)**0.5 <= 10):   #BGM_Volume_Circle.x は左上の座標
+                or (abs(pygame.mouse.get_pos()[0]-(BGM_Volume_Circle.x+10))**2+abs(pygame.mouse.get_pos()[1]-(BGM_Volume_Circle.y+10))**2)**0.5 <= 10):   # BGM_Volume_Circle.x は左上の座標
                 self.mouse_on_pagetxt_VolSetting_line = 1
             elif (350 <= pygame.mouse.get_pos()[0] <= 600 and 327.5 <= pygame.mouse.get_pos()[1] <= 347.5 
                   or (abs(pygame.mouse.get_pos()[0]-(SoundEffect_Volume_Circle.x+10))**2+abs(pygame.mouse.get_pos()[1]-(SoundEffect_Volume_Circle.y+10))**2)**0.5 <= 10):
@@ -715,7 +717,7 @@ def main():
                             open_menu_sound.play()
                             Menu.page_num = 0
                             Menu.show_YN = 1
-                    if Menu.show_YN == 1:       #メニュー内
+                    if Menu.show_YN == 1:       # メニュー内
                         if Menu.page_num == 0:
                             if event.key == K_1:
                                 serect_sound.play()
@@ -794,7 +796,7 @@ def main():
                             cancel_sound.play()
                             Menu.page_num = 0
 
-                    if Menu.show_YN == 0:       #メニュー外
+                    if Menu.show_YN == 0:       # メニュー外
                         if P1.zone != 3:
                             if event.key == K_t:
                                 if Ifm.lives >= 1:
@@ -910,7 +912,7 @@ def main():
                         open_menu_sound.play()
                         Menu.page_num = 0
                         Menu.show_YN = 1
-                        # Ifm.mouse_on_txt_menu = 0 #show()の前に書くことを忘れずに
+                        # Ifm.mouse_on_txt_menu = 0 # show()の前に書くことを忘れずに
                     if Menu.mouse_on_cross == 1:
                         cancel_sound.play()
                         Menu.show_YN = 0
