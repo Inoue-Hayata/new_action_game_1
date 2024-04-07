@@ -80,10 +80,13 @@ class stage():
         self.st_num = 1
         self.next = 0
         self.start_text = 1
-        self.block_enemy = 0    # 1基本ブロック敵 2デカ敵 4動くチビ敵 8不規則に動く極チビ敵
-        self.b_enemy1_pos = [[240,280],[440,220],[300,340],[780,0]]
-        self.b_enemy1_size = [40,100,30,20]
-        self.b_enemy1_vel = [[0,0],[0,0],[3,3],[1,1]]
+        self.block_enemy = 0    # 1基本ブロック敵 2デカ敵 4動くチビ敵 8不規則に動く極チビ敵 16動く先を表示してから時間差で動く敵
+        self.b_enemy1_pos = [[240,280],[440,220],[300,340],[780,0],[370,170]]
+        self.b_enemy1_size = [40,100,30,20,60]
+        self.b_enemy1_vel = [[0,0],[0,0],[3,3],[1,1],[0,0]]
+        self.e_5_TimeCount = 0
+        self.e_5_TestX = 0
+        self.e_5_TestY = 0
         self.coin_num = 0   # コインの個数
         self.coin_pos = []
         self.coin_size = [32,40]   # 今のところ変更なし
@@ -93,7 +96,7 @@ class stage():
         self.stage_element = [[40,40,-4.0,5,0,720,40,40,80,0,0], [40,40,-3.5,5,1,720,40,40,80,0,0], [40,40,-4.0,5,2,720,40,40,80,0,0], [40,40,-4.0,5,3,720,40,40,80,0,0], 
                               [40,40,-4.0,5,4,720,40,40,80,0,0], [40,40,-4.0,5,5,720,40,40,80,0,0], [40,40,-4.0,5,6,720,40,40,80,0,0], [40,40,-4.0,5,7,720,40,40,80,0,0], 
                               [40,40,-4.0,5,8,720,40,40,80,0,0], [40,40,-4.0,5,0,720,40,40,80,800,5], [30,30,-3.0,5,6,720,40,40,80,1000,7], [50,50,-3.0,5,10,720,40,40,80,0,0], 
-                              [40,40,-3.0,5,12,720,40,40,80,0,0], [40,40,-4.0,5,0,720,40,40,80,0,0], [40,40,-4.0,5,0,720,40,40,80,0,0], [40,40,-4.0,5,0,720,40,40,80,0,0], 
+                              [40,40,-3.0,5,12,720,40,40,80,0,0], [40,40,-4.0,5,13,720,40,40,80,1000,5], [40,40,-4.0,5,16,720,40,40,80,0,0], [40,40,-4.0,5,0,720,40,40,80,0,0], 
                               [40,40,-4.0,5,0,720,40,40,80,0,0], [40,40,-4.0,5,0,720,40,40,80,0,0], [40,40,-4.0,5,0,720,40,40,80,0,0], [40,40,-4.0,5,0,720,40,40,80,0,0], 
                               [40,40,-4.0,5,0,720,40,40,80,0,0], [40,40,-4.0,5,0,720,40,40,80,0,0], [40,40,-4.0,5,0,720,40,40,80,0,0],]
                             # P1SizeX, P1SizeY, P1JumpPower, IfmLives, St_b_enemy, StGoalPosX, StGoalPosY, StGoalSizeX, StGoalSizeY, StGoalGap, StCoinNum
@@ -101,7 +104,7 @@ class stage():
         self.show(screen)
         if P1.flash == 0:
             if Menu.show_YN == 0:
-                self.b_enemy_move()
+                self.b_enemy_move(screen)
         if P1.zone == 0:
             if self.block_enemy != 0:
                 for i in range(1,len(format(self.block_enemy, 'b'))+1):
@@ -184,7 +187,7 @@ class stage():
             pygame.draw.rect(screen, (255,255,255), (0, 0, 800, 520))   # game over画面の背景
             screen.blit(St_GameOver_txt, (150, 210))    # game over の文字
 
-    def b_enemy_move(self):
+    def b_enemy_move(self,screen):
         for i in range(1, len(format(self.block_enemy, 'b'))+1):
             if int(str(format(self.block_enemy, 'b'))[-i]) == 1:
                 e1_posX = self.b_enemy1_pos[i-1][0]
@@ -233,6 +236,43 @@ class stage():
                         e1_velY = 1 if e1_velY >= 0 else -1
                     elif 8 < abs(e1_velY):
                         e1_velY = 8 if e1_velY > 8 else -8
+                elif i == 5:
+                    if self.e_5_TimeCount == 0:
+                        self.e_5_TestX = random.randint(0, 740)
+                        self.e_5_TestY = random.randint(0, 370)
+                    self.e_5_TimeCount += 1
+                    pygame.draw.rect(screen, (0, 0, 0), (self.e_5_TestX, self.e_5_TestY, 60, 60), 1)
+                    if self.e_5_TimeCount == 200:
+                        e1_velX = (self.e_5_TestX - e1_posX)/100
+                        e1_velY = (self.e_5_TestY - e1_posY)/100
+                    if abs(self.e_5_TestX - e1_posX) < 1 and abs(self.e_5_TestY - e1_posY) < 1: #到着
+                        e1_posX = self.e_5_TestX
+                        e1_posY = self.e_5_TestY
+                        e1_velX = 0
+                        e1_velY = 0
+                        self.e_5_TimeCount = 0
+                    #画面外に敵5が出た時の処理
+                    if 0 > e1_posX:
+                        e1_posX = 0
+                        e1_velX = 0
+                        e1_velY = 0
+                        self.e_5_TimeCount = 199
+                    elif e1_posX > 800-self.b_enemy1_size[i-1]:
+                        e1_posX = 800-self.b_enemy1_size[i-1]
+                        e1_velX = 0
+                        e1_velY = 0
+                        self.e_5_TimeCount = 199
+                    if 0 > e1_posY:
+                        e1_posY = 0
+                        e1_velX = 0
+                        e1_velY = 0
+                        self.e_5_TimeCount = 199
+                    elif e1_posY > 520-self.b_enemy1_size[i-1]:
+                        e1_posY = 520-self.b_enemy1_size[i-1]
+                        e1_velX = 0
+                        e1_velY = 0
+                        self.e_5_TimeCount = 199
+
                 self.b_enemy1_pos[i-1][0] = e1_posX
                 self.b_enemy1_pos[i-1][1] = e1_posY
                 self.b_enemy1_vel[i-1][0] = e1_velX
@@ -296,6 +336,7 @@ class stage():
         global Ifm_txt_lives
         Ifm_txt_lives = font1.render("残りライフ："+str(Ifm.lives), True, (0, 0, 0))
         self.block_enemy = St_b_enemy
+        self.e_5_TimeCount = 0
         while True:
             self.goal_pos = {'x':StGoalPosX + random.randint(-StGoalGap, StGoalGap), 'y':StGoalPosY + random.randint(-StGoalGap, StGoalGap)}
             self.goal_size = {'x':StGoalSizeX, 'y':StGoalSizeY}
