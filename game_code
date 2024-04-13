@@ -2,6 +2,7 @@ import pygame
 from pygame.locals import *
 import sys
 import random
+import copy
 
 class Player():
     def __init__(self):
@@ -81,7 +82,10 @@ class stage():
         self.next = 0
         self.start_text = 1
         self.block_enemy = 0    # 1基本ブロック敵 2デカ敵 4動くチビ敵 8不規則に動く極チビ敵 16動く先を表示してから時間差で動く敵
-        self.b_enemy1_pos = [[240,280],[440,220],[300,340],[780,0],[370,170]]
+        self.b_enemy0_pos = [[240,280],[440,220],[300,340],[780,0],[740,0]] # 固定(初期値)
+        self.b_enemy0_size = [40,100,30,20,60] # 固定(初期値)
+        self.b_enemy0_vel = [[0,0],[0,0],[3,3],[1,1],[0,0]] # 固定(初期値)
+        self.b_enemy1_pos = [[240,280],[440,220],[300,340],[780,0],[740,0]]
         self.b_enemy1_size = [40,100,30,20,60]
         self.b_enemy1_vel = [[0,0],[0,0],[3,3],[1,1],[0,0]]
         self.e_5_TimeCount = 0
@@ -96,15 +100,15 @@ class stage():
         self.stage_element = [[40,40,-4.0,5,0,720,40,40,80,0,0], [40,40,-3.5,5,1,720,40,40,80,0,0], [40,40,-4.0,5,2,720,40,40,80,0,0], [40,40,-4.0,5,3,720,40,40,80,0,0], 
                               [40,40,-4.0,5,4,720,40,40,80,0,0], [40,40,-4.0,5,5,720,40,40,80,0,0], [40,40,-4.0,5,6,720,40,40,80,0,0], [40,40,-4.0,5,7,720,40,40,80,0,0], 
                               [40,40,-4.0,5,8,720,40,40,80,0,0], [40,40,-4.0,5,0,720,40,40,80,800,5], [30,30,-3.0,5,6,720,40,40,80,1000,7], [50,50,-3.0,5,10,720,40,40,80,0,0], 
-                              [40,40,-3.0,5,12,720,40,40,80,0,0], [40,40,-4.0,5,13,720,40,40,80,1000,5], [40,40,-4.0,5,16,720,40,40,80,0,0], [40,40,-4.0,5,0,720,40,40,80,0,0], 
-                              [40,40,-4.0,5,0,720,40,40,80,0,0], [40,40,-4.0,5,0,720,40,40,80,0,0], [40,40,-4.0,5,0,720,40,40,80,0,0], [40,40,-4.0,5,0,720,40,40,80,0,0], 
-                              [40,40,-4.0,5,0,720,40,40,80,0,0], [40,40,-4.0,5,0,720,40,40,80,0,0], [40,40,-4.0,5,0,720,40,40,80,0,0],]
+                              [40,40,-3.0,5,12,720,40,40,80,0,0], [40,40,-4.0,5,13,720,40,40,80,1000,5], [40,40,-3.0,5,16,720,40,40,80,0,0], [20,20,-3.0,3,12,720,40,40,60,1000,5], 
+                              [15,15,-3.0,10,28,720,40,40,50,1000,10], [40,40,-3.0,5,12,720,40,40,80,300,5], [40,40,-3.0,5,20,720,40,40,80,100,3], [40,40,-3.0,10,24,720,40,40,80,1000,3], 
+                              [40,40,-3.0,10,28,720,40,40,80,400,5], [30,30,-3.0,8,28,720,40,20,40,1000,10], [40,40,-3.0,7,28,720,40,15,30,1000,15],]
                             # P1SizeX, P1SizeY, P1JumpPower, IfmLives, St_b_enemy, StGoalPosX, StGoalPosY, StGoalSizeX, StGoalSizeY, StGoalGap, StCoinNum
     def St_main(self,screen):
         self.show(screen)
         if P1.flash == 0:
             if Menu.show_YN == 0:
-                self.b_enemy_move(screen)
+                self.b_enemy_move()
         if P1.zone == 0:
             if self.block_enemy != 0:
                 for i in range(1,len(format(self.block_enemy, 'b'))+1):
@@ -130,6 +134,8 @@ class stage():
         for i in range(1, len(format(self.block_enemy, 'b'))+1):
             if int(str(format(self.block_enemy, 'b'))[-i]) == 1:
                 screen.blit(block_toge_png_list[i-1],(self.b_enemy1_pos[i-1][0],self.b_enemy1_pos[i-1][1])) # とげブロック
+                if i == 5 and self.e_5_TimeCount > 0:
+                    pygame.draw.rect(screen, (0, 0, 0), (self.e_5_TestX, self.e_5_TestY, 60, 60), max(30-int(self.e_5_TimeCount*60/150/2), 1))
         for i in range(self.coin_num):
             if self.coin_pos[i] != None:
                 screen.blit(coin_png, (self.coin_pos[i][0], self.coin_pos[i][1]))   # コイン
@@ -187,7 +193,7 @@ class stage():
             pygame.draw.rect(screen, (255,255,255), (0, 0, 800, 520))   # game over画面の背景
             screen.blit(St_GameOver_txt, (150, 210))    # game over の文字
 
-    def b_enemy_move(self,screen):
+    def b_enemy_move(self):
         for i in range(1, len(format(self.block_enemy, 'b'))+1):
             if int(str(format(self.block_enemy, 'b'))[-i]) == 1:
                 e1_posX = self.b_enemy1_pos[i-1][0]
@@ -241,17 +247,16 @@ class stage():
                         self.e_5_TestX = random.randint(0, 740)
                         self.e_5_TestY = random.randint(0, 370)
                     self.e_5_TimeCount += 1
-                    pygame.draw.rect(screen, (0, 0, 0), (self.e_5_TestX, self.e_5_TestY, 60, 60), 1)
                     if self.e_5_TimeCount == 150:
-                        e1_velX = (self.e_5_TestX - e1_posX)/50
-                        e1_velY = (self.e_5_TestY - e1_posY)/50
-                    if abs(self.e_5_TestX - e1_posX) < 1 and abs(self.e_5_TestY - e1_posY) < 1: #到着
+                        e1_velX = (self.e_5_TestX - e1_posX)/(50 if self.st_num < 18 else 25)
+                        e1_velY = (self.e_5_TestY - e1_posY)/(50 if self.st_num < 18 else 25)
+                    if abs(self.e_5_TestX - e1_posX) < abs(self.e_5_TestX - (e1_posX + e1_velX)) and abs(self.e_5_TestY - e1_posY) < abs(self.e_5_TestY - (e1_posY + e1_velY)): # 到着
                         e1_posX = self.e_5_TestX
                         e1_posY = self.e_5_TestY
                         e1_velX = 0
                         e1_velY = 0
                         self.e_5_TimeCount = 0
-                    #画面外に敵5が出た時の処理
+                    # 画面外に敵5が出た時の処理
                     if 0 > e1_posX:
                         e1_posX = 0
                         e1_velX = 0
@@ -336,6 +341,12 @@ class stage():
         global Ifm_txt_lives
         Ifm_txt_lives = font1.render("残りライフ："+str(Ifm.lives), True, (0, 0, 0))
         self.block_enemy = St_b_enemy
+        self.b_enemy1_pos = copy.deepcopy(self.b_enemy0_pos)
+        self.b_enemy1_size = copy.deepcopy(self.b_enemy0_size)
+        self.b_enemy1_vel = copy.deepcopy(self.b_enemy0_vel)
+        if self.st_num >= 18:
+            self.b_enemy1_vel[2][0] = 6
+            self.b_enemy1_vel[2][1] = 5
         self.e_5_TimeCount = 0
         while True:
             self.goal_pos = {'x':StGoalPosX + random.randint(-StGoalGap, StGoalGap), 'y':StGoalPosY + random.randint(-StGoalGap, StGoalGap)}
@@ -351,6 +362,8 @@ class stage():
                 Test_Y = random.randint(0, 520-self.coin_size[1])
                 No_use = 0
                 if abs((Test_X+self.coin_size[0])/2 - (P1.pos['x']+P1.size['x'])/2) <= 100 and abs((Test_Y+self.coin_size[1])/2 - (P1.pos['y']+P1.size['y'])/2) <= 100:
+                    No_use = 1
+                elif Test_X + Test_Y < 320:
                     No_use = 1
                 else:
                     for i in range(1, len(format(self.block_enemy, 'b'))+1):
@@ -1158,30 +1171,31 @@ def main():
                     P1.no_control = 1
 
         St.next = 0
-        if P1.pos['x'] <= St.goal_pos['x']+St.goal_size['x']/2 <= P1.pos['x']+P1.size['x']:
-            if (St.goal_pos['y'] < P1.pos['y'] < St.goal_pos['y']+St.goal_size['y'] 
-                or St.goal_pos['y'] < P1.pos['y']+P1.size['y'] < St.goal_pos['y']+St.goal_size['y']):
+        if St.coin_count == St.coin_num:
+            if P1.pos['x'] <= St.goal_pos['x']+St.goal_size['x']/2 <= P1.pos['x']+P1.size['x']:
+                if (St.goal_pos['y'] < P1.pos['y'] < St.goal_pos['y']+St.goal_size['y'] 
+                    or St.goal_pos['y'] < P1.pos['y']+P1.size['y'] < St.goal_pos['y']+St.goal_size['y']):
+                    St.next = 1
+            if P1.pos['y'] <= St.goal_pos['y']+St.goal_size['y']/2 <= P1.pos['y']+P1.size['y']:
+                if (St.goal_pos['x'] < P1.pos['x'] < St.goal_pos['x']+St.goal_size['x'] 
+                    or St.goal_pos['x'] < P1.pos['x']+P1.size['x'] < St.goal_pos['x']+St.goal_size['x']):
+                    St.next = 1
+            if ((((St.goal_pos['x']+St.goal_size['x']/2)-(P1.pos['x']))**2+((St.goal_pos['y']+5.5)-(P1.pos['y']))**2)**0.5 
+                + (((St.goal_pos['x']+St.goal_size['x']/2)-(P1.pos['x']))**2+((St.goal_pos['y']+74.5)-(P1.pos['y']))**2)**0.5 
+                < 79):
                 St.next = 1
-        if P1.pos['y'] <= St.goal_pos['y']+St.goal_size['y']/2 <= P1.pos['y']+P1.size['y']:
-            if (St.goal_pos['x'] < P1.pos['x'] < St.goal_pos['x']+St.goal_size['x'] 
-                or St.goal_pos['x'] < P1.pos['x']+P1.size['x'] < St.goal_pos['x']+St.goal_size['x']):
+            elif ((((St.goal_pos['x']+St.goal_size['x']/2)-(P1.pos['x']+P1.size['x']))**2+((St.goal_pos['y']+5.5)-(P1.pos['y']))**2)**0.5 
+                + (((St.goal_pos['x']+St.goal_size['x']/2)-(P1.pos['x']+P1.size['x']))**2+((St.goal_pos['y']+74.5)-(P1.pos['y']))**2)**0.5 
+                < 79):
                 St.next = 1
-        if ((((St.goal_pos['x']+St.goal_size['x']/2)-(P1.pos['x']))**2+((St.goal_pos['y']+5.5)-(P1.pos['y']))**2)**0.5 
-            + (((St.goal_pos['x']+St.goal_size['x']/2)-(P1.pos['x']))**2+((St.goal_pos['y']+74.5)-(P1.pos['y']))**2)**0.5 
-            < 79):
-            St.next = 1
-        elif ((((St.goal_pos['x']+St.goal_size['x']/2)-(P1.pos['x']+P1.size['x']))**2+((St.goal_pos['y']+5.5)-(P1.pos['y']))**2)**0.5 
-              + (((St.goal_pos['x']+St.goal_size['x']/2)-(P1.pos['x']+P1.size['x']))**2+((St.goal_pos['y']+74.5)-(P1.pos['y']))**2)**0.5 
-              < 79):
-            St.next = 1
-        elif ((((St.goal_pos['x']+St.goal_size['x']/2)-(P1.pos['x']))**2+((St.goal_pos['y']+5.5)-(P1.pos['y']+P1.size['y']))**2)**0.5 
-              + (((St.goal_pos['x']+St.goal_size['x']/2)-(P1.pos['x']))**2+((St.goal_pos['y']+74.5)-(P1.pos['y']+P1.size['y']))**2)**0.5 
-              < 79):
-            St.next = 1
-        elif ((((St.goal_pos['x']+St.goal_size['x']/2)-(P1.pos['x']+P1.size['x']))**2+((St.goal_pos['y']+5.5)-(P1.pos['y']+P1.size['y']))**2)**0.5 
-              + (((St.goal_pos['x']+St.goal_size['x']/2)-(P1.pos['x']+P1.size['x']))**2+((St.goal_pos['y']+74.5)-(P1.pos['y']+P1.size['y']))**2)**0.5 
-              < 79):
-            St.next = 1
+            elif ((((St.goal_pos['x']+St.goal_size['x']/2)-(P1.pos['x']))**2+((St.goal_pos['y']+5.5)-(P1.pos['y']+P1.size['y']))**2)**0.5 
+                + (((St.goal_pos['x']+St.goal_size['x']/2)-(P1.pos['x']))**2+((St.goal_pos['y']+74.5)-(P1.pos['y']+P1.size['y']))**2)**0.5 
+                < 79):
+                St.next = 1
+            elif ((((St.goal_pos['x']+St.goal_size['x']/2)-(P1.pos['x']+P1.size['x']))**2+((St.goal_pos['y']+5.5)-(P1.pos['y']+P1.size['y']))**2)**0.5 
+                + (((St.goal_pos['x']+St.goal_size['x']/2)-(P1.pos['x']+P1.size['x']))**2+((St.goal_pos['y']+74.5)-(P1.pos['y']+P1.size['y']))**2)**0.5 
+                < 79):
+                St.next = 1
         if St.next == 1:
             if St.coin_count == St.coin_num:
                 if P1.size['x'] == St.stage_element[St.st_num-1][0] and P1.size['y'] == St.stage_element[St.st_num-1][1]:
