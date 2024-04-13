@@ -242,9 +242,9 @@ class stage():
                         self.e_5_TestY = random.randint(0, 370)
                     self.e_5_TimeCount += 1
                     pygame.draw.rect(screen, (0, 0, 0), (self.e_5_TestX, self.e_5_TestY, 60, 60), 1)
-                    if self.e_5_TimeCount == 200:
-                        e1_velX = (self.e_5_TestX - e1_posX)/100
-                        e1_velY = (self.e_5_TestY - e1_posY)/100
+                    if self.e_5_TimeCount == 150:
+                        e1_velX = (self.e_5_TestX - e1_posX)/50
+                        e1_velY = (self.e_5_TestY - e1_posY)/50
                     if abs(self.e_5_TestX - e1_posX) < 1 and abs(self.e_5_TestY - e1_posY) < 1: #到着
                         e1_posX = self.e_5_TestX
                         e1_posY = self.e_5_TestY
@@ -256,22 +256,22 @@ class stage():
                         e1_posX = 0
                         e1_velX = 0
                         e1_velY = 0
-                        self.e_5_TimeCount = 199
+                        self.e_5_TimeCount = 149
                     elif e1_posX > 800-self.b_enemy1_size[i-1]:
                         e1_posX = 800-self.b_enemy1_size[i-1]
                         e1_velX = 0
                         e1_velY = 0
-                        self.e_5_TimeCount = 199
+                        self.e_5_TimeCount = 149
                     if 0 > e1_posY:
                         e1_posY = 0
                         e1_velX = 0
                         e1_velY = 0
-                        self.e_5_TimeCount = 199
+                        self.e_5_TimeCount = 149
                     elif e1_posY > 520-self.b_enemy1_size[i-1]:
                         e1_posY = 520-self.b_enemy1_size[i-1]
                         e1_velX = 0
                         e1_velY = 0
-                        self.e_5_TimeCount = 199
+                        self.e_5_TimeCount = 149
 
                 self.b_enemy1_pos[i-1][0] = e1_posX
                 self.b_enemy1_pos[i-1][1] = e1_posY
