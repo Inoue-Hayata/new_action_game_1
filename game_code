@@ -80,6 +80,8 @@ class stage():
         self.goal_size = {'x':40, 'y':80}
         self.st_num = 1
         self.next = 0
+        self.clear_ticker_YN = 0
+        self.clear_ticker_count = 0
         self.start_text = 1
         self.block_enemy = 0    # 1基本ブロック敵 2デカ敵 4動くチビ敵 8不規則に動く極チビ敵 16動く先を表示してから時間差で動く敵
         self.b_enemy0_pos = [[240,280],[440,220],[300,340],[780,0],[740,0]] # 固定(初期値)
@@ -107,7 +109,7 @@ class stage():
     def St_main(self,screen):
         self.show(screen)
         if P1.flash == 0:
-            if Menu.show_YN == 0:
+            if Menu.show_YN == 0 or St.clear_ticker_YN == 0:
                 self.b_enemy_move()
         if P1.zone == 0:
             if self.block_enemy != 0:
@@ -182,9 +184,19 @@ class stage():
                         and 290 <= pygame.mouse.get_pos()[1] <= 310):
                         self.mouse_on_down_arrow = 1
                         pygame.draw.rect(screen, (0, 0, 0), (P1.pos['x']//40*40, 290, 40, 20), 1)
-        if P1.zone == 3:
+        elif P1.zone == 3:
             pygame.draw.rect(screen, (255,255,255), (0, 0, 800, 520))
             screen.blit(St_AllClear_txt, (100, 200))
+        if self.clear_ticker_YN == 1:
+            if self.clear_ticker_count < 25:
+                self.clear_ticker_count += 1
+            clear_ticker_rect = pygame.Surface((500,320), pygame.SRCALPHA) # 四角形のためのサーフェス(clear_ticker_rect)を作成
+            pygame.draw.rect(clear_ticker_rect, (255,255,255), clear_ticker_rect.get_rect(), border_radius=15)  # clear_ticker_rect上に角が丸い四角形(中身)を描画
+            pygame.draw.rect(clear_ticker_rect, (0, 0, 0), clear_ticker_rect.get_rect(), 1, border_radius=15)  # clear_ticker_rect上に角が丸い四角形(枠)を描画
+            clear_ticker_rect.blit(St_clear_txt[0], (250 - (160 + len(str(self.st_num))*20/2), 80))
+            clear_ticker_rect.blit(St_clear_txt[1], (197.5, 205))
+            clear_ticker_rect.set_alpha(int(self.clear_ticker_count*255/25))  # サーフェス(zone_1_rect)全体の透明度を設定
+            screen.blit(clear_ticker_rect, (150, 100-25+self.clear_ticker_count))    # clear_ticker_rectをscreenに描画
     def show_2(self, screen):   # 最前面
         if St.start_text != 0:
             St_start_txt_1 = font3.render("ステージ："+str(St.st_num), True, (0, 0, 0))
@@ -659,6 +671,9 @@ def main():
     St_start_txt_1 = font3.render("ステージ："+str(St.st_num), True, (0, 0, 0))
     global St_GameOver_txt
     St_GameOver_txt = font3.render("GameOver…", True, (255, 0, 0))
+    global St_clear_txt
+    St_clear_txt = [font1.render("ステージ"+str(St.st_num)+"クリア！", True, (0, 0, 0)), 
+                    font4.render("進む→", True, (0, 0, 0))]
     global St_AllClear_txt
     St_AllClear_txt = font5.render("最終ステージクリア！", True, (0, 0, 0))
 
@@ -1133,27 +1148,28 @@ def main():
 
             if P1.size['x'] <= 0 and P1.size['y'] <= 0:
                 if NextStageNum <= 23:
-                    P1.flash = 0
-                    P1.pos['x'] = 0
-                    P1.pos['y'] = 340
-                    P1.vel['x'] = 0
-                    P1.vel['y'] = 0
-                    St.next = 0
-                    Menu.show_YN = 0
+                    St.clear_ticker_YN = 1
+                    # P1.flash = 0
+                    # P1.pos['x'] = 0
+                    # P1.pos['y'] = 340
+                    # P1.vel['x'] = 0
+                    # P1.vel['y'] = 0
+                    # St.next = 0
+                    # Menu.show_YN = 0
                     P1.no_control = 1
-                    St.st_num = NextStageNum
-                    St.stage_element_process(St.stage_element[St.st_num-1][0], St.stage_element[St.st_num-1][1], 
-                                            St.stage_element[St.st_num-1][2], St.stage_element[St.st_num-1][3],
-                                            St.stage_element[St.st_num-1][4], St.stage_element[St.st_num-1][5],
-                                            St.stage_element[St.st_num-1][6], St.stage_element[St.st_num-1][7],
-                                            St.stage_element[St.st_num-1][8], St.stage_element[St.st_num-1][9],
-                                            St.stage_element[St.st_num-1][10])
-                    St.start_text = St.st_num
-                    global Ifm_txt_stage_num
-                    Ifm_txt_stage_num = font1.render("ステージ："+str(St.st_num), True, (0, 0, 0))
-                    global St_start_txt_1
-                    St_start_txt_1 = font3.render("ステージ："+str(St.st_num), True, (0, 0, 0))
-                    pygame.time.set_timer(START_TEXT_RESET, 2000)
+                    # St.st_num = NextStageNum
+                    # St.stage_element_process(St.stage_element[St.st_num-1][0], St.stage_element[St.st_num-1][1], 
+                    #                         St.stage_element[St.st_num-1][2], St.stage_element[St.st_num-1][3],
+                    #                         St.stage_element[St.st_num-1][4], St.stage_element[St.st_num-1][5],
+                    #                         St.stage_element[St.st_num-1][6], St.stage_element[St.st_num-1][7],
+                    #                         St.stage_element[St.st_num-1][8], St.stage_element[St.st_num-1][9],
+                    #                         St.stage_element[St.st_num-1][10])
+                    # St.start_text = St.st_num
+                    # global Ifm_txt_stage_num
+                    # Ifm_txt_stage_num = font1.render("ステージ："+str(St.st_num), True, (0, 0, 0))
+                    # global St_start_txt_1
+                    # St_start_txt_1 = font3.render("ステージ："+str(St.st_num), True, (0, 0, 0))
+                    # pygame.time.set_timer(START_TEXT_RESET, 2000)
                 else:
                     St.ground_list = []
                     for i in range(20):
