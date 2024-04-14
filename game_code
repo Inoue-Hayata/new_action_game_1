@@ -1132,7 +1132,7 @@ def main():
                 P1.size['y'] -= 0.75
 
             if P1.size['x'] <= 0 and P1.size['y'] <= 0:
-                if NextStageNum <= 22:
+                if NextStageNum <= 23:
                     P1.flash = 0
                     P1.pos['x'] = 0
                     P1.pos['y'] = 340
