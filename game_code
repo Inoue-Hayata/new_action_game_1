@@ -9,7 +9,7 @@ class Player():
         self.pos = {'x':0, 'y':340}
         self.size = {'x':40, 'y':40}
         self.vel = {'x':0, 'y':0}
-        self.jump_power = -4.0
+        self.jump_power = -3.5
         self.zone = 0   # 0が通常、1が編集モード、2がgame over画面、3が23ステージクリア画面
         self.no_control = 0
         self.flash = 0  # 0が通常、1が敵と当たった時、2が編集モード、3が自爆
@@ -99,17 +99,18 @@ class stage():
         self.coin_count = 0
         self.mouse_on_up_arrow = 0
         self.mouse_on_down_arrow = 0
-        self.stage_element = [[40,40,-4.0,5,0,720,40,40,80,0,0], [40,40,-3.5,5,1,720,40,40,80,0,0], [40,40,-4.0,5,2,720,40,40,80,0,0], [40,40,-4.0,5,3,720,40,40,80,0,0], 
-                              [40,40,-4.0,5,4,720,40,40,80,0,0], [40,40,-4.0,5,5,720,40,40,80,0,0], [40,40,-4.0,5,6,720,40,40,80,0,0], [40,40,-4.0,5,7,720,40,40,80,0,0], 
-                              [40,40,-4.0,5,8,720,40,40,80,0,0], [40,40,-4.0,5,0,720,40,40,80,800,5], [30,30,-3.0,5,6,720,40,40,80,1000,7], [50,50,-3.0,5,10,720,40,40,80,0,0], 
-                              [40,40,-3.0,5,12,720,40,40,80,0,0], [40,40,-4.0,5,13,720,40,40,80,1000,5], [40,40,-3.0,5,16,720,40,40,80,0,0], [20,20,-3.0,3,12,720,40,40,60,1000,5], 
+        self.mouse_on_StClear_NextSt = 0
+        self.stage_element = [[40,40,-3.5,5,0,720,40,40,80,0,0], [40,40,-3.5,5,1,720,40,40,80,0,0], [40,40,-3.5,5,2,720,40,40,80,0,0], [40,40,-3.5,5,3,720,40,40,80,0,0], 
+                              [40,40,-3.5,5,4,720,40,40,80,0,0], [40,40,-3.5,5,5,720,40,40,80,0,0], [40,40,-3.5,5,6,720,40,40,80,0,0], [40,40,-3.5,5,7,720,40,40,80,0,0], 
+                              [40,40,-3.5,5,8,720,40,40,80,0,0], [40,40,-3.5,5,0,720,40,40,80,800,5], [30,30,-3.0,5,6,720,40,40,80,1000,7], [50,50,-3.0,5,10,720,40,40,80,0,0], 
+                              [40,40,-3.0,5,12,720,40,40,80,0,0], [40,40,-3.5,5,13,720,40,40,80,1000,5], [40,40,-3.0,5,16,720,40,40,80,0,0], [20,20,-3.0,3,12,720,40,40,60,1000,5], 
                               [15,15,-3.0,10,28,720,40,40,50,1000,10], [40,40,-3.0,5,12,720,40,40,80,300,5], [40,40,-3.0,5,20,720,40,40,80,100,3], [40,40,-3.0,10,24,720,40,40,80,1000,3], 
                               [40,40,-3.0,10,28,720,40,40,80,400,5], [30,30,-3.0,8,28,720,40,20,40,1000,10], [40,40,-3.0,7,28,720,40,15,30,1000,15],]
                             # P1SizeX, P1SizeY, P1JumpPower, IfmLives, St_b_enemy, StGoalPosX, StGoalPosY, StGoalSizeX, StGoalSizeY, StGoalGap, StCoinNum
     def St_main(self,screen):
         self.show(screen)
         if P1.flash == 0:
-            if Menu.show_YN == 0 or St.clear_ticker_YN == 0:
+            if Menu.show_YN == 0 and St.clear_ticker_YN == 0:
                 self.b_enemy_move()
         if P1.zone == 0:
             if self.block_enemy != 0:
@@ -190,13 +191,19 @@ class stage():
         if self.clear_ticker_YN == 1:
             if self.clear_ticker_count < 25:
                 self.clear_ticker_count += 1
-            clear_ticker_rect = pygame.Surface((500,320), pygame.SRCALPHA) # 四角形のためのサーフェス(clear_ticker_rect)を作成
-            pygame.draw.rect(clear_ticker_rect, (255,255,255), clear_ticker_rect.get_rect(), border_radius=15)  # clear_ticker_rect上に角が丸い四角形(中身)を描画
-            pygame.draw.rect(clear_ticker_rect, (0, 0, 0), clear_ticker_rect.get_rect(), 1, border_radius=15)  # clear_ticker_rect上に角が丸い四角形(枠)を描画
-            clear_ticker_rect.blit(St_clear_txt[0], (250 - (160 + len(str(self.st_num))*20/2), 80))
-            clear_ticker_rect.blit(St_clear_txt[1], (197.5, 205))
+            clear_ticker_rect = pygame.Surface((800,520), pygame.SRCALPHA) # 四角形のためのサーフェス(clear_ticker_rect)を作成
+            pygame.draw.rect(clear_ticker_rect, (255,255,255,int(self.clear_ticker_count*150/25)), (0, 0, 800, 520))
+            pygame.draw.rect(clear_ticker_rect, (255,255,255), (150, 100-25+self.clear_ticker_count, 500, 320), border_radius=15)  # clear_ticker_rect上に角が丸い四角形(中身)を描画
+            pygame.draw.rect(clear_ticker_rect, (0, 0, 0), (150, 100-25+self.clear_ticker_count, 500, 320), 1, border_radius=15)  # clear_ticker_rect上に角が丸い四角形(枠)を描画
+            St_clear_txt[0] = font1.render("ステージ"+str(St.st_num)+"クリア！", True, (0, 0, 0))
+            clear_ticker_rect.blit(St_clear_txt[0], (400 - (160 + len(str(self.st_num))*20/2), 100-25+self.clear_ticker_count+80))
+            clear_ticker_rect.blit(St_clear_txt[1], (286.25, 100-25+self.clear_ticker_count+205))
             clear_ticker_rect.set_alpha(int(self.clear_ticker_count*255/25))  # サーフェス(zone_1_rect)全体の透明度を設定
-            screen.blit(clear_ticker_rect, (150, 100-25+self.clear_ticker_count))    # clear_ticker_rectをscreenに描画
+            if (286.25 <= pygame.mouse.get_pos()[0] <= 513.75 
+                and self.clear_ticker_count+280 <= pygame.mouse.get_pos()[1] <= self.clear_ticker_count+315):
+                self.mouse_on_StClear_NextSt = 1
+                pygame.draw.rect(clear_ticker_rect, (0, 0, 0), (286.25, self.clear_ticker_count+280, 227.5, 35), 1)
+            screen.blit(clear_ticker_rect, (0, 0))    # clear_ticker_rectをscreenに描画
     def show_2(self, screen):   # 最前面
         if St.start_text != 0:
             St_start_txt_1 = font3.render("ステージ："+str(St.st_num), True, (0, 0, 0))
@@ -673,7 +680,7 @@ def main():
     St_GameOver_txt = font3.render("GameOver…", True, (255, 0, 0))
     global St_clear_txt
     St_clear_txt = [font1.render("ステージ"+str(St.st_num)+"クリア！", True, (0, 0, 0)), 
-                    font4.render("進む→", True, (0, 0, 0))]
+                    font4.render("進む：nキー→", True, (0, 0, 0))]
     global St_AllClear_txt
     St_AllClear_txt = font5.render("最終ステージクリア！", True, (0, 0, 0))
 
@@ -731,6 +738,8 @@ def main():
             St.mouse_on_up_arrow = 0
         if St.mouse_on_down_arrow == 1:
             St.mouse_on_down_arrow = 0
+        if St.mouse_on_StClear_NextSt == 1:
+            St.mouse_on_StClear_NextSt = 0
         St.St_main(screen)
 
         P1.show(screen)
@@ -777,95 +786,95 @@ def main():
                 pygame.quit() 
                 sys.exit()
             if event.type == KEYDOWN:
-                if St.next == 0:
-                    if event.key == K_m:
-                        if Menu.show_YN == 1:
-                            cancel_sound.play()
-                            Menu.show_YN = 0
-                        elif Menu.show_YN == 0:
-                            open_menu_sound.play()
-                            Menu.page_num = 0
-                            Menu.show_YN = 1
-                    if Menu.show_YN == 1:       # メニュー内
-                        if Menu.page_num == 0:
-                            if event.key == K_1:
+                if event.key == K_m:
+                    if Menu.show_YN == 1:
+                        cancel_sound.play()
+                        Menu.show_YN = 0
+                    elif Menu.show_YN == 0:
+                        open_menu_sound.play()
+                        Menu.page_num = 0
+                        Menu.show_YN = 1
+                if Menu.show_YN == 1:       # メニュー内
+                    if Menu.page_num == 0:
+                        if event.key == K_1:
+                            serect_sound.play()
+                            Menu.page_num = 1
+                        if event.key == K_2:
+                            serect_sound.play()
+                            Menu.page_num = 2
+                            Menu.SSP_pos_index = St.st_num-1
+                            Menu.SSP_pos_GapY = 0
+                            Menu.SSP_velY = 0
+                        if event.key == K_3:
+                            serect_sound.play()
+                            Menu.page_num = 3
+                    if Menu.page_num == 2:
+                        if event.key == K_RIGHT:
+                            if Menu.SSP_pos_index <= 21:
                                 serect_sound.play()
-                                Menu.page_num = 1
-                            if event.key == K_2:
-                                serect_sound.play()
-                                Menu.page_num = 2
-                                Menu.SSP_pos_index = St.st_num-1
+                                Menu.SSP_pos_index += 1
                                 Menu.SSP_pos_GapY = 0
                                 Menu.SSP_velY = 0
-                            if event.key == K_3:
+                        if event.key == K_LEFT:
+                            if Menu.SSP_pos_index >= 1:
                                 serect_sound.play()
-                                Menu.page_num = 3
-                        if Menu.page_num == 2:
-                            if event.key == K_RIGHT:
-                                if Menu.SSP_pos_index <= 21:
-                                    serect_sound.play()
-                                    Menu.SSP_pos_index += 1
-                                    Menu.SSP_pos_GapY = 0
-                                    Menu.SSP_velY = 0
-                            if event.key == K_LEFT:
-                                if Menu.SSP_pos_index >= 1:
-                                    serect_sound.play()
-                                    Menu.SSP_pos_index -= 1
-                                    Menu.SSP_pos_GapY = 0
-                                    Menu.SSP_velY = 0
-                            if event.key == K_RETURN:
-                                if St.st_num != Menu.SSP_pos_index+1:
-                                    decision_sound.play()
-                                    St.st_num = Menu.SSP_pos_index+1
-                                    St.start_text = St.st_num
-                                    Ifm_txt_stage_num = font1.render("ステージ："+str(St.st_num), True, (0, 0, 0))
-                                    St_start_txt_1 = font3.render("ステージ："+str(St.st_num), True, (0, 0, 0))
-                                    Menu.show_YN = 0
-                                    P1.zone = 0
-                                    P1.flash = 0
-                                    P1.pos['x'] = 0
-                                    P1.pos['y'] = 340
-                                    P1.vel['x'] = 0
-                                    P1.vel['y'] = 0
-                                    P1.no_control = 1
-                                    St.stage_element_process(St.stage_element[St.st_num-1][0], St.stage_element[St.st_num-1][1], 
-                                                             St.stage_element[St.st_num-1][2], St.stage_element[St.st_num-1][3],
-                                                             St.stage_element[St.st_num-1][4], St.stage_element[St.st_num-1][5],
-                                                             St.stage_element[St.st_num-1][6], St.stage_element[St.st_num-1][7],
-                                                             St.stage_element[St.st_num-1][8], St.stage_element[St.st_num-1][9],
-                                                             St.stage_element[St.st_num-1][10])
-                                    pygame.time.set_timer(START_TEXT_RESET, 2000)
-                        if Menu.page_num == 3:
-                            if event.key == K_RIGHT:
-                                if Menu.VolSetting_square_cursor == 1 or Menu.VolSetting_square_cursor == 3:
-                                    Menu.VolSetting_square_cursor += 1
-                            if event.key == K_LEFT:
-                                if Menu.VolSetting_square_cursor == 2 or Menu.VolSetting_square_cursor == 4:
-                                    Menu.VolSetting_square_cursor -= 1
-                            if event.key == K_UP:
-                                if Menu.VolSetting_square_cursor == 3 or Menu.VolSetting_square_cursor == 4:
-                                    Menu.VolSetting_square_cursor -= 2
-                            if event.key == K_DOWN:
-                                if Menu.VolSetting_square_cursor == 1 or Menu.VolSetting_square_cursor == 2:
-                                    Menu.VolSetting_square_cursor += 2
-                            if event.key == K_RETURN:
-                                if Menu.BGM_volume > 0 and Menu.VolSetting_square_cursor == 1:
-                                    serect_sound.play()
-                                    Menu.VolSetting_PM_and_time[0] = 1
-                                elif Menu.BGM_volume < 100 and Menu.VolSetting_square_cursor == 2:
-                                    serect_sound.play()
-                                    Menu.VolSetting_PM_and_time[0] = 2
-                                elif Menu.SoundEffect_volume > 0 and Menu.VolSetting_square_cursor == 3:
-                                    serect_sound.play()
-                                    Menu.VolSetting_PM_and_time[0] = 3
-                                elif Menu.SoundEffect_volume < 100 and Menu.VolSetting_square_cursor == 4:
-                                    serect_sound.play()
-                                    Menu.VolSetting_PM_and_time[0] = 4
-                        if event.key == K_b:
-                            cancel_sound.play()
-                            Menu.page_num = 0
+                                Menu.SSP_pos_index -= 1
+                                Menu.SSP_pos_GapY = 0
+                                Menu.SSP_velY = 0
+                        if event.key == K_RETURN:
+                            if St.st_num != Menu.SSP_pos_index+1:
+                                decision_sound.play()
+                                St.st_num = Menu.SSP_pos_index+1
+                                St.start_text = St.st_num
+                                Ifm_txt_stage_num = font1.render("ステージ："+str(St.st_num), True, (0, 0, 0))
+                                St_start_txt_1 = font3.render("ステージ："+str(St.st_num), True, (0, 0, 0))
+                                Menu.show_YN = 0
+                                P1.zone = 0
+                                P1.flash = 0
+                                P1.pos['x'] = 0
+                                P1.pos['y'] = 340
+                                P1.vel['x'] = 0
+                                P1.vel['y'] = 0
+                                P1.no_control = 1
+                                St.stage_element_process(St.stage_element[St.st_num-1][0], St.stage_element[St.st_num-1][1], 
+                                                            St.stage_element[St.st_num-1][2], St.stage_element[St.st_num-1][3],
+                                                            St.stage_element[St.st_num-1][4], St.stage_element[St.st_num-1][5],
+                                                            St.stage_element[St.st_num-1][6], St.stage_element[St.st_num-1][7],
+                                                            St.stage_element[St.st_num-1][8], St.stage_element[St.st_num-1][9],
+                                                            St.stage_element[St.st_num-1][10])
+                                pygame.time.set_timer(START_TEXT_RESET, 2000)
+                    if Menu.page_num == 3:
+                        if event.key == K_RIGHT:
+                            if Menu.VolSetting_square_cursor == 1 or Menu.VolSetting_square_cursor == 3:
+                                Menu.VolSetting_square_cursor += 1
+                        if event.key == K_LEFT:
+                            if Menu.VolSetting_square_cursor == 2 or Menu.VolSetting_square_cursor == 4:
+                                Menu.VolSetting_square_cursor -= 1
+                        if event.key == K_UP:
+                            if Menu.VolSetting_square_cursor == 3 or Menu.VolSetting_square_cursor == 4:
+                                Menu.VolSetting_square_cursor -= 2
+                        if event.key == K_DOWN:
+                            if Menu.VolSetting_square_cursor == 1 or Menu.VolSetting_square_cursor == 2:
+                                Menu.VolSetting_square_cursor += 2
+                        if event.key == K_RETURN:
+                            if Menu.BGM_volume > 0 and Menu.VolSetting_square_cursor == 1:
+                                serect_sound.play()
+                                Menu.VolSetting_PM_and_time[0] = 1
+                            elif Menu.BGM_volume < 100 and Menu.VolSetting_square_cursor == 2:
+                                serect_sound.play()
+                                Menu.VolSetting_PM_and_time[0] = 2
+                            elif Menu.SoundEffect_volume > 0 and Menu.VolSetting_square_cursor == 3:
+                                serect_sound.play()
+                                Menu.VolSetting_PM_and_time[0] = 3
+                            elif Menu.SoundEffect_volume < 100 and Menu.VolSetting_square_cursor == 4:
+                                serect_sound.play()
+                                Menu.VolSetting_PM_and_time[0] = 4
+                    if event.key == K_b:
+                        cancel_sound.play()
+                        Menu.page_num = 0
 
-                    if Menu.show_YN == 0:       # メニュー外
+                if Menu.show_YN == 0:       # メニュー外
+                    if St.next == 0:
                         if P1.zone != 3:
                             if event.key == K_t:
                                 if Ifm.lives >= 1:
@@ -935,6 +944,30 @@ def main():
                                 if P1.pos['x']//40 != 0 and St.ground_list[int(P1.pos['x']//40)] < 10 or P1.pos['x']//40 == 0 and St.ground_list[0] < 9:
                                     serect_sound.play()
                                     St.ground_list[int(P1.pos['x']/40)] += 1
+                    else:
+                        if (St.clear_ticker_count == 25 
+                            and event.key == K_n):
+                            decision_sound.play()
+                            P1.flash = 0
+                            P1.pos['x'] = 0
+                            P1.pos['y'] = 340
+                            P1.vel['x'] = 0
+                            P1.vel['y'] = 0
+                            St.next = 0
+                            St.clear_ticker_YN = 0
+                            Menu.show_YN = 0
+                            P1.no_control = 1
+                            St.st_num += 1
+                            St.stage_element_process(St.stage_element[St.st_num-1][0], St.stage_element[St.st_num-1][1], 
+                                                    St.stage_element[St.st_num-1][2], St.stage_element[St.st_num-1][3],
+                                                    St.stage_element[St.st_num-1][4], St.stage_element[St.st_num-1][5],
+                                                    St.stage_element[St.st_num-1][6], St.stage_element[St.st_num-1][7],
+                                                    St.stage_element[St.st_num-1][8], St.stage_element[St.st_num-1][9],
+                                                    St.stage_element[St.st_num-1][10])
+                            St.start_text = St.st_num
+                            Ifm_txt_stage_num = font1.render("ステージ："+str(St.st_num), True, (0, 0, 0))
+                            St_start_txt_1 = font3.render("ステージ："+str(St.st_num), True, (0, 0, 0))
+                            pygame.time.set_timer(START_TEXT_RESET, 2000)
             if event.type == KEYUP:
                 if Menu.show_YN == 1:
                     if Menu.page_num == 3:
@@ -946,82 +979,104 @@ def main():
                                 Menu.VolSetting_PM_and_time[1] = 0
             if event.type == MOUSEBUTTONDOWN:
                 if St.next == 0:
+                    if Ifm.mouse_on_txt_killME == 1:
+                        if Ifm.lives >= 1:
+                            impact_sound.play()
+                            P1.zone = 0
+                            P1.flash_count = 0
+                            P1.flash = 3
+                    if Ifm.mouse_on_txt_restart == 1:
+                        decision_sound.play()
+                        P1.zone = 0
+                        P1.flash = 0
+                        P1.zone = 0
+                        P1.pos['x'] = 0
+                        P1.pos['y'] = 340
+                        P1.vel['x'] = 0
+                        P1.vel['y'] = 0
+                        P1.no_control = 1
+                        St.start_text = St.st_num
+                        St.stage_element_process(St.stage_element[St.st_num-1][0], St.stage_element[St.st_num-1][1], 
+                                                St.stage_element[St.st_num-1][2], St.stage_element[St.st_num-1][3],
+                                                St.stage_element[St.st_num-1][4], St.stage_element[St.st_num-1][5],
+                                                St.stage_element[St.st_num-1][6], St.stage_element[St.st_num-1][7],
+                                                St.stage_element[St.st_num-1][8], St.stage_element[St.st_num-1][9],
+                                                St.stage_element[St.st_num-1][10])
+                        pygame.time.set_timer(START_TEXT_RESET, 2000)
                     if P1.zone != 3:
-                        if Ifm.mouse_on_txt_killME == 1:
-                            if Ifm.lives >= 1:
-                                impact_sound.play()
-                                P1.zone = 0
-                                P1.flash_count = 0
-                                P1.flash = 3
-                        if Ifm.mouse_on_txt_restart == 1:
-                            decision_sound.play()
-                            P1.zone = 0
-                            P1.flash = 0
-                            P1.zone = 0
-                            P1.pos['x'] = 0
-                            P1.pos['y'] = 340
-                            P1.vel['x'] = 0
-                            P1.vel['y'] = 0
-                            P1.no_control = 1
-                            St.start_text = St.st_num
-                            St.stage_element_process(St.stage_element[St.st_num-1][0], St.stage_element[St.st_num-1][1], 
-                                                    St.stage_element[St.st_num-1][2], St.stage_element[St.st_num-1][3],
-                                                    St.stage_element[St.st_num-1][4], St.stage_element[St.st_num-1][5],
-                                                    St.stage_element[St.st_num-1][6], St.stage_element[St.st_num-1][7],
-                                                    St.stage_element[St.st_num-1][8], St.stage_element[St.st_num-1][9],
-                                                    St.stage_element[St.st_num-1][10])
-                            pygame.time.set_timer(START_TEXT_RESET, 2000)
                         if St.mouse_on_up_arrow == 1:
                             serect_sound.play()
                             St.ground_list[int(P1.pos['x']/40)] -= 1
                         if St.mouse_on_down_arrow == 1:
                             serect_sound.play()
                             St.ground_list[int(P1.pos['x']/40)] += 1
-                    if Ifm.mouse_on_txt_menu == 1:
-                        open_menu_sound.play()
-                        Menu.page_num = 0
-                        Menu.show_YN = 1
-                        # Ifm.mouse_on_txt_menu = 0 # show()の前に書くことを忘れずに
-                    if Menu.mouse_on_cross == 1:
-                        cancel_sound.play()
+                if St.mouse_on_StClear_NextSt == 1:
+                    decision_sound.play()
+                    P1.flash = 0
+                    P1.pos['x'] = 0
+                    P1.pos['y'] = 340
+                    P1.vel['x'] = 0
+                    P1.vel['y'] = 0
+                    St.next = 0
+                    St.clear_ticker_YN = 0
+                    Menu.show_YN = 0
+                    P1.no_control = 1
+                    St.st_num += 1
+                    St.stage_element_process(St.stage_element[St.st_num-1][0], St.stage_element[St.st_num-1][1], 
+                                            St.stage_element[St.st_num-1][2], St.stage_element[St.st_num-1][3],
+                                            St.stage_element[St.st_num-1][4], St.stage_element[St.st_num-1][5],
+                                            St.stage_element[St.st_num-1][6], St.stage_element[St.st_num-1][7],
+                                            St.stage_element[St.st_num-1][8], St.stage_element[St.st_num-1][9],
+                                            St.stage_element[St.st_num-1][10])
+                    St.start_text = St.st_num
+                    Ifm_txt_stage_num = font1.render("ステージ："+str(St.st_num), True, (0, 0, 0))
+                    St_start_txt_1 = font3.render("ステージ："+str(St.st_num), True, (0, 0, 0))
+                    pygame.time.set_timer(START_TEXT_RESET, 2000)
+                if Ifm.mouse_on_txt_menu == 1:
+                    open_menu_sound.play()
+                    Menu.page_num = 0
+                    Menu.show_YN = 1
+                    # Ifm.mouse_on_txt_menu = 0 # show()の前に書くことを忘れずに
+                if Menu.mouse_on_cross == 1:
+                    cancel_sound.play()
+                    Menu.show_YN = 0
+                if Menu.mouse_on_txt_X == 1:
+                    cancel_sound.play()
+                    Menu.show_YN = 0
+                if Menu.mouse_on_maintxt_HowToPlay == 1:
+                    serect_sound.play()
+                    Menu.page_num = 1
+                if Menu.mouse_on_maintxt_SerectSt == 1:
+                    serect_sound.play()
+                    Menu.page_num = 2
+                    Menu.SSP_pos_index = St.st_num-1
+                    Menu.SSP_pos_GapY = 0
+                    Menu.SSP_velY = 0
+                if Menu.mouse_on_maintxt_VolSetting == 1:
+                    serect_sound.play()
+                    Menu.page_num = 3
+                if Menu.mouse_on_pagetxt_SerectSt != 0:
+                    if St.st_num != Menu.mouse_on_pagetxt_SerectSt:
+                        decision_sound.play()
+                        St.st_num = Menu.mouse_on_pagetxt_SerectSt
+                        St.start_text = St.st_num
+                        Ifm_txt_stage_num = font1.render("ステージ："+str(St.st_num), True, (0, 0, 0))
+                        St_start_txt_1 = font3.render("ステージ："+str(St.st_num), True, (0, 0, 0))
                         Menu.show_YN = 0
-                    if Menu.mouse_on_txt_X == 1:
-                        cancel_sound.play()
-                        Menu.show_YN = 0
-                    if Menu.mouse_on_maintxt_HowToPlay == 1:
-                        serect_sound.play()
-                        Menu.page_num = 1
-                    if Menu.mouse_on_maintxt_SerectSt == 1:
-                        serect_sound.play()
-                        Menu.page_num = 2
-                        Menu.SSP_pos_index = St.st_num-1
-                        Menu.SSP_pos_GapY = 0
-                        Menu.SSP_velY = 0
-                    if Menu.mouse_on_maintxt_VolSetting == 1:
-                        serect_sound.play()
-                        Menu.page_num = 3
-                    if Menu.mouse_on_pagetxt_SerectSt != 0:
-                        if St.st_num != Menu.mouse_on_pagetxt_SerectSt:
-                            decision_sound.play()
-                            St.st_num = Menu.mouse_on_pagetxt_SerectSt
-                            St.start_text = St.st_num
-                            Ifm_txt_stage_num = font1.render("ステージ："+str(St.st_num), True, (0, 0, 0))
-                            St_start_txt_1 = font3.render("ステージ："+str(St.st_num), True, (0, 0, 0))
-                            Menu.show_YN = 0
-                            P1.flash = 0
-                            P1.zone = 0
-                            P1.pos['x'] = 0
-                            P1.pos['y'] = 340
-                            P1.vel['x'] = 0
-                            P1.vel['y'] = 0
-                            P1.no_control = 1
-                            St.stage_element_process(St.stage_element[St.st_num-1][0], St.stage_element[St.st_num-1][1], 
-                                                    St.stage_element[St.st_num-1][2], St.stage_element[St.st_num-1][3],
-                                                    St.stage_element[St.st_num-1][4], St.stage_element[St.st_num-1][5],
-                                                    St.stage_element[St.st_num-1][6], St.stage_element[St.st_num-1][7],
-                                                    St.stage_element[St.st_num-1][8], St.stage_element[St.st_num-1][9],
-                                                    St.stage_element[St.st_num-1][10])
-                            pygame.time.set_timer(START_TEXT_RESET, 2000)
+                        P1.flash = 0
+                        P1.zone = 0
+                        P1.pos['x'] = 0
+                        P1.pos['y'] = 340
+                        P1.vel['x'] = 0
+                        P1.vel['y'] = 0
+                        P1.no_control = 1
+                        St.stage_element_process(St.stage_element[St.st_num-1][0], St.stage_element[St.st_num-1][1], 
+                                                St.stage_element[St.st_num-1][2], St.stage_element[St.st_num-1][3],
+                                                St.stage_element[St.st_num-1][4], St.stage_element[St.st_num-1][5],
+                                                St.stage_element[St.st_num-1][6], St.stage_element[St.st_num-1][7],
+                                                St.stage_element[St.st_num-1][8], St.stage_element[St.st_num-1][9],
+                                                St.stage_element[St.st_num-1][10])
+                        pygame.time.set_timer(START_TEXT_RESET, 2000)
                     if Menu.mouse_on_back == 1:
                         cancel_sound.play()
                         Menu.page_num = 0
